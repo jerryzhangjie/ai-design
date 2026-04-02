@@ -1,5 +1,5 @@
 ---
-model: anthropic/claude-sonnet-4-5
+model: opencode/qwen3.6-plus-free
 description: 产品经理 - 需求分析和PRD输出
 mode: subagent
 color: info

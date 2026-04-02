@@ -8,8 +8,8 @@
       }
     }
   },
-  "model": "anthropic/claude-sonnet-4-5",
-  "small_model": "anthropic/claude-haiku-4-5",
+  "model": "opencode/qwen3.6-plus-free",
+  "small_model": "opencode/qwen3.6-plus-free",
   "share": "manual",
   "autoupdate": true,
   "default_agent": "project-manager",
@@ -24,7 +24,7 @@
   },
   "agent": {
     "project-manager": {
-      "model": "anthropic/claude-sonnet-4-5",
+      "model": "opencode/qwen3.6-plus-free",
       "description": "项目经理 - 原型设计流程的总指挥和编排者",
       "mode": "primary",
       "color": "primary",
@@ -47,7 +47,7 @@
       }
     },
     "product-manager": {
-      "model": "anthropic/claude-sonnet-4-5",
+      "model": "opencode/qwen3.6-plus-free",
       "description": "产品经理 - 需求分析和PRD输出",
       "mode": "subagent",
       "color": "info",
@@ -58,7 +58,7 @@
       }
     },
     "ui-designer": {
-      "model": "anthropic/claude-sonnet-4-5",
+      "model": "opencode/qwen3.6-plus-free",
       "description": "UI设计师 - 视觉架构和规范定义",
       "mode": "subagent",
       "color": "accent",
@@ -69,7 +69,7 @@
       }
     },
     "frontend-expert": {
-      "model": "anthropic/claude-sonnet-4-5",
+      "model": "opencode/qwen3.6-plus-free",
       "description": "前端专家 - Vue 2 组件开发和代码实现",
       "mode": "subagent",
       "color": "success",
@@ -82,7 +82,7 @@
       }
     },
     "qa-engineer": {
-      "model": "anthropic/claude-haiku-4-5",
+      "model": "opencode/qwen3.6-plus-free",
       "description": "测试专家 - 构建验证和质量检查",
       "mode": "subagent",
       "color": "warning",

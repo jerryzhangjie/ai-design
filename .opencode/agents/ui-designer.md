@@ -1,5 +1,5 @@
 ---
-model: anthropic/claude-sonnet-4-5
+model: opencode/qwen3.6-plus-free
 description: UI设计师 - 整体视觉风格定义
 mode: subagent
 color: accent

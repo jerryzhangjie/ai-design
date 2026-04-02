@@ -1,5 +1,5 @@
 ---
-model: anthropic/claude-haiku-4-5
+model: opencode/qwen3.6-plus-free
 description: 测试专家 - 构建验证和质量检查
 mode: subagent
 color: warning

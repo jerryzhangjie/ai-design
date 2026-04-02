@@ -1,5 +1,5 @@
 ---
-model: anthropic/claude-sonnet-4-5
+model: opencode/qwen3.6-plus-free
 description: 项目经理 - 原型设计流程的总指挥
 mode: primary
 color: primary

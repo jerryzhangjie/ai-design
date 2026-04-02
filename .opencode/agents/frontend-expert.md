@@ -1,5 +1,5 @@
 ---
-model: anthropic/claude-sonnet-4-5
+model: opencode/qwen3.6-plus-free
 description: 前端专家 - Vue 2 组件开发和代码实现
 mode: subagent
 color: success
