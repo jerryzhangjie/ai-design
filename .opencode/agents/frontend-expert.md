@@ -7,7 +7,6 @@ steps: 15
 permission:
   read: allow
   edit: allow
-  write: allow
   bash: allow
 ---
 

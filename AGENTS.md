@@ -8,134 +8,116 @@
 > - 与用户的所有交互默认中文，除非用户明确要求其他语言
 > - **此规则优先级最高，不可忽略**
 
-## 语言要求
+## 项目概述
 
-**所有交互、回答、注释、提交信息均使用中文。** 除非用户明确要求使用其他语言，否则默认使用中文沟通。
+Vue 2.7 + Vite 5 SPA，使用 Vue Router 3 和 Vuex 3。
 
-## Project Overview
-
-Vue 2 + Vite SPA using Vue Router 3 and Vuex 3.
-
-## Commands
+## 命令
 
 ```bash
-npm run dev       # Start dev server (Vite, HMR)
-npm run build     # Production build
-npm run preview   # Preview production build locally
+npm run dev       # 启动开发服务器 (Vite, HMR)
+npm run build     # 生产构建
+npm run preview   # 本地预览生产构建
 ```
 
-**No test or lint scripts are currently configured.** To add them:
-- Testing: `npm i -D vitest @vue/test-utils jsdom` then add `"test": "vitest"`
-- Linting: `npm i -D eslint eslint-plugin-vue` then add `"lint": "eslint src/ --ext .js,.vue"`
+**当前未配置测试和 lint 脚本。** 如需添加：
+- 测试: `npm i -D vitest @vue/test-utils jsdom` 然后添加 `"test": "vitest"`
+- Lint: `npm i -D eslint eslint-plugin-vue` 然后添加 `"lint": "eslint src/ --ext .js,.vue"`
 
-## Architecture
+## 架构
 
 ```
 src/
-├── main.js              # Vue app entry point
-├── App.vue              # Root component (<router-view />)
-├── router/index.js      # Vue Router 3 (history mode)
+├── main.js              # Vue 应用入口
+├── App.vue              # 根组件 (<router-view />)
+├── router/index.js      # Vue Router 3 (history 模式)
 ├── store/index.js       # Vuex 3 store
-└── views/               # Page-level components
-    └── Home.vue
+├── views/               # 页面级组件
+│   └── Home.vue
+└── components/          # 可复用组件 (当前为空)
 ```
 
-## Code Style
+## 代码风格
 
-### Vue Components (SFC)
-- Use Options API (Vue 2 convention)
-- Order: `<template>` → `<script>` → `<style>`
-- Always declare `name` on every component
-- Use `scoped` on `<style>` unless global styles are intentional
-- Component names: PascalCase (`Home`, `App`)
-- File names: PascalCase for components (`Home.vue`)
+### Vue 组件 (SFC)
+- 使用 Options API (Vue 2 规范)
+- 顺序: `<template>` → `<script>` → `<style>`
+- 必须声明 `name` 属性
+- 使用 `scoped` 样式，除非是全局样式
+- 组件名: PascalCase (`Home`, `UserList`)
+- 文件名: PascalCase (`Home.vue`, `UserList.vue`)
 
 ### JavaScript
-- ES modules only (`import`/`export`)
-- No semicolons (project convention as seen in existing files)
-- Single quotes for strings
-- 2-space indentation
-- Arrow functions for simple callbacks: `h => h(App)`
-- `const` over `let`; avoid `var`
+- ES modules (`import`/`export`)
+- 不使用分号
+- 字符串使用单引号
+- 2 空格缩进
+- `const` 优先于 `let`，避免 `var`
+- 简单回调使用箭头函数: `h => h(App)`
 
 ### Vue Router
-- Route names: PascalCase (`Home`, `About`)
-- Use history mode (`mode: 'history'`)
-- Lazy-load routes with `() => import(...)` for production
+- 路由名: PascalCase (`Home`, `About`)
+- 使用 history 模式 (`mode: 'history'`)
+- 路由懒加载: `() => import('../views/Page.vue')`
 
 ### Vuex
-- State: plain object at top level
-- Mutations: synchronous only, name in SCREAMING_SNAKE_CASE or camelCase
-- Actions: async operations, commit mutations
-- Use `mapState`/`mapActions`/`mapGetters` in components instead of direct `$store` access when possible
+- State: 顶层普通对象
+- Mutations: 仅同步操作，命名使用 SCREAMING_SNAKE_CASE 或 camelCase
+- Actions: 异步操作，commit mutations
+- 组件中使用 `mapState`/`mapActions`/`mapGetters` 而非直接访问 `$store`
 
-### Error Handling
-- Vue error handler: `Vue.config.errorHandler`
-- Router navigation guard errors: catch in `router.onError()`
-- API calls: wrap in try/catch, commit error state to Vuex
+### 错误处理
+- Vue 错误处理器: `Vue.config.errorHandler`
+- 路由导航守卫错误: 在 `router.onError()` 中捕获
+- API 调用: 使用 try/catch，将错误状态提交到 Vuex
 
 ### CSS
-- Scoped styles per component
-- Flexbox for layout (project convention)
-- Global resets in `App.vue` only
+- 组件级 scoped 样式
+- 使用 Flexbox 布局
+- 全局重置仅在 `App.vue` 中
 
-## Adding New Features
+## 添加新功能
 
-### New Page
-1. Create `src/views/PageName.vue`
-2. Add route in `src/router/index.js`
+### 新页面
+1. 创建 `src/views/PageName.vue`
+2. 在 `src/router/index.js` 中添加路由
 
-### New Vuex Module
-1. Add module object in `src/store/index.js` or split into `src/store/modules/`
-2. Register in `modules: {}`
+### 新组件
+1. 创建 `src/components/ComponentName.vue`
+2. 在父组件中局部注册 `components: {}`
 
-### New Component
-1. Create `src/components/ComponentName.vue`
-2. Import and register locally in parent's `components: {}`
+### 新 Vuex 模块
+1. 在 `src/store/index.js` 中添加模块，或拆分到 `src/store/modules/`
+2. 在 `modules: {}` 中注册
 
-## Multi-Agent Collaboration
+## 多 Agent 协作
 
-### Agent Architecture
+### Agent 架构
 
-This project uses a multi-agent workflow orchestrated by OpenCode:
-
-| Agent | Mode | Role |
+| Agent | 模式 | 职责 |
 |-------|------|------|
-| `project-manager` | primary | Orchestrator, user's first contact point |
-| `product-manager` | subagent | Requirements analysis, PRD output |
-| `ui-designer` | subagent | Visual design, component tree, layout |
-| `frontend-expert` | subagent | Vue 2 component development |
-| `qa-engineer` | subagent | Build verification, code review |
+| `project-manager` | primary | 流程编排，用户第一接触点 |
+| `product-manager` | subagent | 需求分析，PRD 输出 |
+| `ui-designer` | subagent | 视觉设计，组件树，布局 |
+| `frontend-expert` | subagent | Vue 2 组件开发 |
+| `qa-engineer` | subagent | 构建验证，代码审查 |
 
-### Workflow
-
-```
-User Request → project-manager (plan) → user confirm
-  → product-manager (PRD) → user confirm
-  → ui-designer (design spec) → user confirm
-  → frontend-expert (code) → qa-engineer (verify) → done
-```
-
-- Each step pauses for user confirmation before proceeding
-- Artifacts are written to `.opencode/work/` directory
-- Progress is tracked in `.opencode/worker/process.md`
-- Flow definition is in `.opencode/worker/workflow.md` (immutable)
-
-### Starting the Workflow
-
-Simply send your request in natural language to the project-manager:
+### 工作流
 
 ```
-做一个用户管理页面，有搜索、列表、分页
+用户请求 → project-manager (计划) → 用户确认
+  → product-manager (PRD) → 用户确认
+  → ui-designer (设计规范) → 用户确认
+  → frontend-expert (代码) → qa-engineer (验证) → 完成
 ```
 
-The project-manager will automatically:
-1. Read the workflow definition
-2. Generate an execution plan
-3. Wait for your confirmation before each step
+- 每步完成后等待用户确认
+- 产出物写入 `.opencode/work/` 目录
+- 进度追踪在 `.opencode/worker/process.md`
+- 流程定义在 `.opencode/worker/workflow.md` (不可变)
 
-### Code Generation Rules
+### 代码生成规则
 
-- All generated code must follow the code style defined in this file
-- Components follow Vue 2 SFC conventions (Options API, scoped styles)
-- File modifications are backed up to `.opencode/work/backups/` before changes
+- 所有生成代码必须遵循本文件规范
+- 组件遵循 Vue 2 SFC 规范 (Options API, scoped 样式)
+- 修改文件前先备份到 `.opencode/work/backups/`
