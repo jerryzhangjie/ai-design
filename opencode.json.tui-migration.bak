@@ -22,6 +22,12 @@
     "edit": "ask",
     "bash": "ask"
   },
+  "tui": {
+    "scroll_acceleration": {
+      "enabled": true
+    },
+    "diff_style": "auto"
+  },
   "agent": {
     "project-manager": {
       "model": "anthropic/claude-sonnet-4-5",
