@@ -477,8 +477,6 @@ Color: warning
 | `.opencode/worker/workflow.md` | 流程定义文件 | 流程步骤定义（不可变，单一事实源） |
 | `.opencode/work/` | 运行时目录 | 步骤产出物存储（动态生成） |
 | `.opencode/work/backups/` | 备份目录 | 代码修改前备份（动态生成） |
-| `.opencode/worker/process.md` | 进度文件 | 实时任务进度（Markdown + YAML frontmatter格式） |
-| `.opencode/worker/workflow.md` | 流程定义文件 | 流程步骤定义（不可变，单一事实源） |
 
 ### 5.2 需要更新的文件
 
@@ -500,11 +498,11 @@ Color: warning
   "small_model": "anthropic/claude-haiku-4-5",
   "instructions": ["AGENTS.md"],
   "default_agent": "project-manager",
-    "compaction": {
-      "auto": true,
-      "prune": true,
-      "reserved": 15000
-    },
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 15000
+  },
   "permission": {
     "edit": "ask",
     "bash": "ask"
@@ -579,13 +577,6 @@ Color: warning
         "bash": "allow"
       }
     }
-  },
-  "command": {
-    "prototype": {
-      "template": "启动原型设计流程。用户需求：$ARGUMENTS\n\n你是项目经理，按以下规则执行：\n\n1. 读取 .opencode/worker/workflow.md 确认流程定义\n2. 读取 .opencode/worker/process.md 确认当前步骤\n3. 只执行 current 指向的步骤，禁止跳步\n4. 每步完成后验证产出物是否存在且非空\n5. 验证通过后更新 process.md，等待用户确认\n6. 验证失败则标记 failed 并通知用户\n\n流程步骤: plan → user_gate → prd → user_gate → design → user_gate → code → qa → done\n\n产出物写入 .opencode/work/ 目录。实时更新进度到 .opencode/worker/process.md。",
-      "description": "启动AI原型设计流程",
-      "agent": "project-manager"
-    }
   }
 }
 ```
@@ -600,8 +591,6 @@ Color: warning
 │   ├── ui-designer.md          # subagent mode
 │   ├── frontend-expert.md      # subagent mode
 │   └── qa-engineer.md          # subagent mode
-├── commands/
-│   └── prototype.md            # 快捷命令
 ├── work/                       # 运行时工作区（动态生成）
 │   ├── step1-plan.md           # 执行计划
 │   ├── step2-prd.md            # PRD文档
@@ -978,7 +967,7 @@ OpenCode 没有内置的 agent-to-agent 消息传递机制。子 agent 通过 `t
 
 `steps` 控制最大 agentic 迭代次数，防止 agent 陷入无限 tool call 循环。项目经理需要较多步骤（25）来编排整个流程，前端专家需要中等步骤（15）来完成代码生成。
 
-### 11.7 为什么使用双文件流程编排？
+### 11.5 为什么使用双文件流程编排？
 
 OpenCode 没有内置的 workflow/orchestration 引擎。通过 `workflow.md`（不可变流程定义）+ `process.md`（可变运行时状态）双文件机制：
 - 流程定义与执行状态分离，compaction 后可完全恢复
@@ -987,15 +976,15 @@ OpenCode 没有内置的 workflow/orchestration 引擎。通过 `workflow.md`（
 - 每步完成后验证产出物存在性和非空，防止无效状态进入下一步
 - Markdown 格式比 JSON 对 LLM 更友好，减少格式错误
 
-### 11.8 为什么 compaction.reserved 设置为 15000？
+### 11.6 为什么 compaction.reserved 设置为 15000？
 
 多 agent 长对话中，项目经理需要维护整个流程状态、多个 subagent 的调用结果和产出物路径。10000 tokens 的缓冲区在复杂场景下可能不足，15000 提供更安全的余量。
 
-### 11.5 为什么不使用 Git 进行回溯？
+### 11.7 为什么不使用 Git 进行回溯？
 
 本项目不依赖 Git 操作。回溯通过文件备份机制实现：前端专家在修改代码前自动备份到 `.opencode/work/backups/`，回溯时从备份恢复。这使得项目可以在非 Git 仓库中正常工作。
 
-### 11.6 为什么需要进度监控文件？
+### 11.8 为什么需要进度监控文件？
 
 `.opencode/worker/process.md` 提供实时的任务状态追踪，支持：
 - 用户随时了解当前进度
