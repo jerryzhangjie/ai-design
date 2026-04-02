@@ -12,10 +12,11 @@
   "small_model": "anthropic/claude-haiku-4-5",
   "share": "manual",
   "autoupdate": true,
+  "default_agent": "project-manager",
   "compaction": {
     "auto": true,
     "prune": true,
-    "reserved": 10000
+    "reserved": 15000
   },
   "permission": {
     "edit": "ask",
@@ -26,5 +27,76 @@
       "enabled": true
     },
     "diff_style": "auto"
+  },
+  "agent": {
+    "project-manager": {
+      "model": "anthropic/claude-sonnet-4-5",
+      "description": "项目经理 - 原型设计流程的总指挥和编排者",
+      "mode": "primary",
+      "color": "primary",
+      "steps": 25,
+      "permission": {
+        "edit": {
+          ".opencode/worker/process.md": "allow",
+          ".opencode/worker/workflow.md": "allow",
+          ".opencode/work/**": "allow",
+          "*": "deny"
+        },
+        "bash": "allow",
+        "read": "allow",
+        "task": "allow",
+        "external_directory": {
+          ".opencode/**": "allow",
+          "src/**": "allow",
+          "*": "ask"
+        }
+      }
+    },
+    "product-manager": {
+      "model": "anthropic/claude-sonnet-4-5",
+      "description": "产品经理 - 需求分析和PRD输出",
+      "mode": "subagent",
+      "color": "info",
+      "permission": {
+        "edit": { ".opencode/work/**": "allow", "*": "deny" },
+        "bash": "allow",
+        "read": "allow"
+      }
+    },
+    "ui-designer": {
+      "model": "anthropic/claude-sonnet-4-5",
+      "description": "UI设计师 - 视觉架构和规范定义",
+      "mode": "subagent",
+      "color": "accent",
+      "permission": {
+        "edit": { ".opencode/work/**": "allow", "*": "deny" },
+        "bash": { "*": "deny" },
+        "read": "allow"
+      }
+    },
+    "frontend-expert": {
+      "model": "anthropic/claude-sonnet-4-5",
+      "description": "前端专家 - Vue 2 组件开发和代码实现",
+      "mode": "subagent",
+      "color": "success",
+      "steps": 15,
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "write": "allow",
+        "bash": "allow"
+      }
+    },
+    "qa-engineer": {
+      "model": "anthropic/claude-haiku-4-5",
+      "description": "测试专家 - 构建验证和质量检查",
+      "mode": "subagent",
+      "color": "warning",
+      "permission": {
+        "edit": { ".opencode/work/**": "allow", "*": "deny" },
+        "read": "allow",
+        "bash": "allow"
+      }
+    }
   }
 }

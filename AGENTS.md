@@ -84,3 +84,50 @@ src/
 ### New Component
 1. Create `src/components/ComponentName.vue`
 2. Import and register locally in parent's `components: {}`
+
+## Multi-Agent Collaboration
+
+### Agent Architecture
+
+This project uses a multi-agent workflow orchestrated by OpenCode:
+
+| Agent | Mode | Role |
+|-------|------|------|
+| `project-manager` | primary | Orchestrator, user's first contact point |
+| `product-manager` | subagent | Requirements analysis, PRD output |
+| `ui-designer` | subagent | Visual design, component tree, layout |
+| `frontend-expert` | subagent | Vue 2 component development |
+| `qa-engineer` | subagent | Build verification, code review |
+
+### Workflow
+
+```
+User Request → project-manager (plan) → user confirm
+  → product-manager (PRD) → user confirm
+  → ui-designer (design spec) → user confirm
+  → frontend-expert (code) → qa-engineer (verify) → done
+```
+
+- Each step pauses for user confirmation before proceeding
+- Artifacts are written to `.opencode/work/` directory
+- Progress is tracked in `.opencode/worker/process.md`
+- Flow definition is in `.opencode/worker/workflow.md` (immutable)
+
+### Starting the Workflow
+
+Simply send your request in natural language to the project-manager:
+
+```
+做一个用户管理页面，有搜索、列表、分页
+```
+
+The project-manager will automatically:
+1. Read the workflow definition
+2. Generate an execution plan
+3. Wait for your confirmation before each step
+
+### Code Generation Rules
+
+- All generated code must follow the code style defined in this file
+- Components follow Vue 2 SFC conventions (Options API, scoped styles)
+- File modifications are backed up to `.opencode/work/backups/` before changes
