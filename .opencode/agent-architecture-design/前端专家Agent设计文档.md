@@ -50,25 +50,43 @@ permission:
 | 输入 | 来源 | 格式 |
 |------|------|------|
 | 任务指令 | 项目经理 | prompt 参数 |
-| 上下文文件 | .opencode/work/ | Markdown |
+| UI 设计规范 | .opencode/work/design.md | Markdown |
+| PRD 文档 | .opencode/work/prd.md | Markdown |
 
 ### 4.2 输出
 
 | 输出 | 目标 | 格式 |
 |------|------|------|
-| 工作产出 | .opencode/work/ | Markdown |
+| Vue 组件 | src/views/, src/components/ | .vue |
+| 路由配置 | src/router/index.js | JS |
+| 备份文件 | .opencode/work/backups/ | .vue |
 
 ---
 
 ## 五、工作流程
 
+### 5.1 执行步骤
 
 1. 读取 `.opencode/work/design.md` 获取 UI 设计规范
-2. 读取项目现有代码结构
-3. 修改任何文件前，先备份到 `.opencode/work/backups/`
-4. 生成/修改 Vue 组件文件
-5. 更新路由配置
-6. 运行 `npm run build` 验证构建
+2. 读取 `.opencode/work/prd.md` 获取 PRD（页面结构和功能）
+3. 读取项目现有代码结构
+4. 修改任何文件前，先备份到 `.opencode/work/backups/`
+5. 生成/修改 Vue 组件文件
+6. 更新路由配置
+7. 运行 `npm run build` 验证构建
+
+### 5.2 代码生成顺序
+
+1. 先生成可复用组件（src/components/）
+2. 再生成页面组件（src/views/）
+3. 最后更新路由配置
+
+### 5.3 备份规则
+
+- 修改任何文件前，先将原文件复制到 `.opencode/work/backups/`
+- 备份文件命名：原文件名 + 时间戳（如 `UserList.vue.20260402100000`）
+- 回溯时由项目经理调用从备份恢复
+- 清理命令：`rm -rf .opencode/work/backups/*`
 
 ---
 
@@ -211,6 +229,6 @@ permission:
 
 ---
 
-*文档版本: v1.0*
-*最后同步: 2026-04-02 19:11:59*
-*自动生成为 agent-doc-sync skill*
+*文档版本: v2.0*
+*最后同步: 2026-04-06*
+*更新内容：明确输入依赖（PRD+设计）、代码生成顺序、备份规则*

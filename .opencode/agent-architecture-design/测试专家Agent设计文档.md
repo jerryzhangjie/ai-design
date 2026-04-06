@@ -49,24 +49,50 @@ permission:
 | 输入 | 来源 | 格式 |
 |------|------|------|
 | 任务指令 | 项目经理 | prompt 参数 |
-| 上下文文件 | .opencode/work/ | Markdown |
+| 生成的代码 | src/ | .vue, .js |
+| 前端专家产出物 | src/views/, src/components/ | Vue 组件 |
 
 ### 4.2 输出
 
 | 输出 | 目标 | 格式 |
 |------|------|------|
-| 工作产出 | .opencode/work/ | Markdown |
+| 测试报告 | .opencode/work/qa-report.md | Markdown |
 
 ---
 
 ## 五、工作流程
 
+### 5.1 执行步骤
 
 1. 读取项目经理的验证指令
 2. 运行 `npm run build` 检查构建
 3. 检查生成的 Vue 文件是否符合规范
 4. 验证路由配置
 5. 将测试报告写入 `.opencode/work/qa-report.md`
+
+### 5.2 检查清单
+
+#### 构建验证
+- [ ] `npm run build` 无错误
+- [ ] 无编译警告
+
+#### 代码规范
+- [ ] 组件命名 PascalCase
+- [ ] 所有组件声明了 name
+- [ ] 样式使用了 scoped
+- [ ] 2 空格缩进
+- [ ] 无分号
+- [ ] 单引号
+- [ ] 中文注释
+
+#### 路由配置
+- [ ] 路由使用 history 模式
+- [ ] 路由名称 PascalCase
+- [ ] 路由使用懒加载 `() => import(...)`
+
+#### 文件结构
+- [ ] 页面组件在 `src/views/` 下
+- [ ] 可复用组件在 `src/components/` 下
 
 ---
 
@@ -235,6 +261,6 @@ permission:
 
 ---
 
-*文档版本: v1.0*
-*最后同步: 2026-04-02 19:12:00*
-*自动生成为 agent-doc-sync skill*
+*文档版本: v2.0*
+*最后同步: 2026-04-06*
+*更新内容：明确输入来源、检查清单结构化*
