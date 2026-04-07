@@ -1,5 +1,5 @@
 ---
-model: opencode/qwen3.6-plus-free
+model: opencode/minimax-m2.5-free
 description: UI设计师 - 整体视觉风格定义
 mode: subagent
 color: accent

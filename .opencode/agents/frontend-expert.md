@@ -1,9 +1,9 @@
 ---
-model: opencode/qwen3.6-plus-free
+model: opencode/minimax-m2.5-free
 description: 前端专家 - Vue 2 组件开发和代码实现
 mode: subagent
 color: success
-steps: 15
+steps: 30
 permission:
   read: allow
   edit: allow
@@ -31,8 +31,15 @@ permission:
 4. 生成/修改 Vue 组件文件
 5. 更新路由配置
 6. 运行 `npm run build` 验证构建
-7. 如构建失败，尝试修复并重新验证（最多3次）
-8. 如仍失败，报告具体错误并终止
+7. 如构建成功，写入构建状态到 `.opencode/work/.build-status.json`
+8. 如构建失败，尝试修复并重新验证（最多3次）
+9. 如仍失败，报告具体错误并终止
+
+## 构建状态管理
+
+- 构建成功后，创建标记文件 `.opencode/work/.build-success`（空文件）
+- 构建失败时不创建此文件
+- 此标记用于测试专家判断构建是否已通过，避免重复构建
 
 ## 备份规则
 

@@ -1,9 +1,10 @@
 ---
 task: ''
 status: idle
+workflowVersion: 2
 current: plan
 completed: []
-pending: [plan, user_gate_plan, prd, user_gate_prd, design, user_gate_design, code, qa, done]
+pending: [plan, user_gate_plan, parallel_design_prd, user_gate_design_prd, code, qa]
 artifacts: {}
 ---
 
