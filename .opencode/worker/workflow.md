@@ -50,11 +50,11 @@ version: 2
 - agent: qa-engineer
 - 依赖: src/, .build-success（如存在则跳过构建）
 - 产出: qa-report.md
-- 下一: done
+- 下一: serve
 
 ### 7. [serve] 启动服务
 - agent: project-manager
-- 触发: QA验证通过后用户确认
+- 触发: QA验证通过后自动启动
 
 ### 8. [done] 完成
 - type: terminal

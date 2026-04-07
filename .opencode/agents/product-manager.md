@@ -25,17 +25,15 @@ permission:
 6. 定义验收标准（可验证的功能清单）
 7. 输出结构化 PRD 文档（Markdown）+ 思维导图JSON数据
 
-## 工作流程（严格执行顺序）
+## 工作流程（简化高效版 - 批量生成 统一验证）
 
-1. **第一步**：分析用户需求，识别业务模块，生成完整的 Markdown PRD 文档
-2. **第二步**：将 Markdown PRD 写入 `.opencode/work/prd.md`
-3. **第三步**：读取刚生成的 `.opencode/work/prd.md`（必须通过 read 工具读取）
-4. **第四步**：基于 PRD 内容，提取结构化数据，生成思维导图 JSON
-5. **第五步**：验证 JSON 数据（见下方自检清单）
-6. **第六步**：将验证通过的 JSON 写入 `.opencode/work/prd-mindmap.json`
-7. **第七步**：调用转换脚本 `.opencode/tools/convert-old-to-new.js`，将思维导图 JSON 转换为流程序列图就绪格式
-8. **第八步**：验证转换后的 JSON 包含 workflows、lines、metadata 字段
-9. **第九步**：将转换后的 JSON 写入 `.opencode/work/prd-converted.json`
+1. **分析需求**：分析用户需求，识别业务模块，生成完整的 Markdown PRD 文档内容
+2. **写入PRD**：调用 Write 工具，将 Markdown PRD 写入 `.opencode/work/prd.md`
+3. **生成JSON**：基于 PRD 内容提取结构化数据，生成思维导图 JSON，调用 Write 工具写入 `.opencode/work/prd-mindmap.json`
+4. **转换格式**：调用 Bash 工具运行转换脚本 `node .opencode/tools/convert-old-to-new.js --input .opencode/work/prd-mindmap.json --output .opencode/work/prd-converted.json`
+5. **统一验证**：调用 Glob 工具检查3个文件是否都存在（模式：`.opencode/work/prd*`）
+6. **重试处理**：如有文件缺失，重新写入缺失文件（最多重试1次）
+7. **返回报告**：返回完成信息，必须包含已成功创建的3个文件路径列表
 
 ## 转换脚本调用方式
 
@@ -52,10 +50,13 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/work/prd-mindmap.js
 - 如果脚本执行失败，分析错误原因并重试，最多重试 2 次
 
 ## 重要约束
-- 必须先完成 PRD 生成，再生成 JSON
-- 生成 JSON 时必须先读取 PRD 文件，从 PRD 中提取数据
-- 禁止凭空生成 JSON，所有 JSON 数据必须来源于 PRD
-- JSON 生成后必须自我验证，确保数据一致性
+
+- **【强制】批量写入**：依次写入3个文件，暂不验证
+- **【强制】统一验证**：写入完成后，调用Glob工具一次性检查3个文件
+- **【强制】重试处理**：如有文件缺失，重新写入缺失文件（最多重试1次）
+- **【强制】返回报告**：完成信息必须包含3个文件路径
+- 生成 JSON 时可参考 PRD 内容，无需强制读取 PRD 文件
+- JSON 生成后建议自我验证，确保数据一致性
 - 必须调用转换脚本生成最终的流程序列图数据
 
 ## 输出约束（严格遵守）
@@ -233,6 +234,7 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/work/prd-mindmap.js
 
 ## JSON 自检清单（写入前必须逐项检查）
 
+### 数据完整性检查
 - [ ] projectName 和 description 非空
 - [ ] pages 数组非空
 - [ ] 每个 page 的 pageId 唯一
@@ -248,6 +250,11 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/work/prd-mindmap.js
 - [ ] 所有 updateAt 字段为 0
 - [ ] 所有 navigationType 字段为 "页面导航"
 
+### 文件存在性检查（统一验证）
+- [ ] 批量写入完成后，调用 Glob 工具验证 `.opencode/work/prd*` 包含3个文件
+- [ ] 如有缺失，重新写入缺失文件（最多重试1次）
+- [ ] 最终确认：3个文件都存在后再返回完成信息
+
 ## 沟通风格
 - 结构化思维，善用用户故事
 - 功能描述具体可验证
@@ -260,3 +267,4 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/work/prd-mindmap.js
 - 必须同时输出 Markdown PRD 和思维导图JSON
 - JSON 必须严格遵循上述格式，可被直接解析
 - 所有输出必须为中文
+- **【强制】返回报告**：任务完成后，必须在返回信息中列出已成功创建的所有文件路径
