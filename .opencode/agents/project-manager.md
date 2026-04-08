@@ -35,7 +35,6 @@ permission:
 
 - 读取 `.opencode/worker/workflow.md` 获取流程定义
 - 读取 `.opencode/worker/process.md` 获取当前步骤
-- 读取 `.opencode/doc/agent_schedule.json` 获取 agent 状态（如存在）
 - **以下情况需要重新读取**：首次启动、状态重置（process.md被清除）、compaction 恢复
 - **后续响应中直接使用缓存状态，禁止重复读取**
 
@@ -123,7 +122,9 @@ agent_schedule.json 是任务执行的状态快照，记录：
 
 用户输入需求，开始执行 plan 时创建。
 
-### 初始化模板
+### 初始化模板（动态生成 agents）
+
+agent_schedule.json 的 agents 列表在 plan 步骤执行完成后、根据实际要执行的流程动态生成。
 
 ```json
 {
@@ -147,12 +148,49 @@ agent_schedule.json 是任务执行的状态快照，记录：
 }
 ```
 
+### agents 列表动态生成规则
+
+在 plan 步骤执行完成后、user_gate_plan 之前，根据动态规划结果向 agents 数组插入本次任务实际需要调用的 agent。
+
+**根据 plan 生成的执行计划，动态生成 agents：**
+
+| 执行计划类型 | 需要插入的 agents |
+|------------|------------------|
+| 完整流程（包含 parallel_design_prd + code + qa） | product-manager, ui-designer, frontend-expert, qa-engineer |
+| 中等需求（parallel_design_prd → code → qa） | product-manager, ui-designer, frontend-expert, qa-engineer |
+| 简单修改（frontend-expert → qa） | frontend-expert, qa-engineer |
+| 纯设计咨询（ui-designer） | ui-designer |
+
+**插入模板（user_gate_plan 之前执行）：**
+
+```json
+{
+  "agents": [
+    { "agent": "product-manager", "task": "parallel_design_prd", "description": "需求分析与PRD输出", "status": "pending", "dispatchedAt": null, "completedAt": null },
+    { "agent": "ui-designer", "task": "parallel_design_prd", "description": "UI设计规范", "status": "pending", "dispatchedAt": null, "completedAt": null },
+    { "agent": "frontend-expert", "task": "code", "description": "Vue组件开发", "status": "pending", "dispatchedAt": null, "completedAt": null },
+    { "agent": "qa-engineer", "task": "qa", "description": "质量验证", "status": "pending", "dispatchedAt": null, "completedAt": null }
+  ]
+}
+```
+
+或（简单修改场景）：
+```json
+{
+  "agents": [
+    { "agent": "frontend-expert", "task": "code", "description": "Vue组件开发", "status": "pending", "dispatchedAt": null, "completedAt": null },
+    { "agent": "qa-engineer", "task": "qa", "description": "质量验证", "status": "pending", "dispatchedAt": null, "completedAt": null }
+  ]
+}
+```
+
 ### 更新规则
 
 | 阶段 | 更新内容 |
 |------|----------|
-| **步骤开始** | 记录 agentFlow，更新 todos 中对应 step 的 status |
-| **Agent 调用** | 添加 agent 到 agents 列表，设置 status="in_progress"，记录 dispatchedAt |
+| **初始化** | 创建 agent_schedule.json，设置 startTime、taskName、workflow、version、currentState、currentStep；创建 todos 列表，agents 数组初始化为空 [] |
+| **plan 完成 → user_gate_plan** | 根据 plan 生成的执行计划，动态向 agents 数组插入本次任务实际需要调用的 agent |
+| **步骤开始** | 记录 agentFlow，更新 todos 中对应 step 的 status；根据 step 类型找到对应的 agent，将 status 改为 in_progress，记录 dispatchedAt |
 | **Agent 完成** | 更新 agent.status="completed"，记录 completedAt |
 | **用户确认** | 查找当前 step 对应的 todo，status 改为 completed，标记下一 todo 为 in_progress |
 | **任务完成** | 更新 currentState="done"，更新 currentStep="done" |
@@ -180,7 +218,11 @@ agent_schedule.json 是任务执行的状态快照，记录：
     { "id": "todo_1", "step": "user_gate_plan", "status": "completed", ... },
     { "id": "todo_2", "step": "parallel_design_prd", "status": "in_progress", ... }
   ],
-  "currentStep": "parallel_design_prd"
+  "currentStep": "parallel_design_prd",
+  "agents": [
+    { "agent": "product-manager", "task": "parallel_design_prd", "description": "需求分析与PRD输出", "status": "pending", "dispatchedAt": null, "completedAt": null },
+    { "agent": "ui-designer", "task": "parallel_design_prd", "description": "UI设计规范", "status": "pending", "dispatchedAt": null, "completedAt": null }
+  ]
 }
 ```
 
@@ -188,17 +230,12 @@ agent_schedule.json 是任务执行的状态快照，记录：
 ```json
 {
   "agents": [
-    { "agent": "product-manager", "task": "parallel_design_prd", "description": "需求分析与PRD输出", "status": "in_progress", "dispatchedAt": "...", "completedAt": null },
-    { "agent": "ui-designer", "task": "parallel_design_prd", "description": "UI设计规范", "status": "in_progress", "dispatchedAt": "...", "completedAt": null }
+    { "agent": "产品经理", "task": "parallel_design_prd", "description": "需求分析与PRD输出", "status": "in_progress", "dispatchedAt": "...", "completedAt": null },
+    { "agent": "UI设计师", "task": "parallel_design_prd", "description": "UI设计规范", "status": "in_progress", "dispatchedAt": "...", "completedAt": null }
   ]
 }
 ```
 
-### 读写操作
-
-- 读取: 使用 read 工具读取 `.opencode/doc/agent_schedule.json`
-- 写入: 使用 write 工具写入更新后的 JSON
-- 每次更新后更新 `lastUpdate` 字段为当前时间
 
 ### 与 process.md 的关系
 
