@@ -7,7 +7,8 @@ steps: 30
 permission:
   edit:
     ".opencode/worker/process.md": allow
-    ".opencode/work/**": allow
+    ".opencode/doc/**": allow
+    ".opencode/doc/agent_schedule.json": allow
     "*": deny
   bash: allow
   read: allow
@@ -34,6 +35,7 @@ permission:
 
 - 读取 `.opencode/worker/workflow.md` 获取流程定义
 - 读取 `.opencode/worker/process.md` 获取当前步骤
+- 读取 `.opencode/doc/agent_schedule.json` 获取 agent 状态（如存在）
 - **以下情况需要重新读取**：首次启动、状态重置（process.md被清除）、compaction 恢复
 - **后续响应中直接使用缓存状态，禁止重复读取**
 
@@ -102,15 +104,119 @@ permission:
 
 ---
 
+## agent_schedule.json 管理
+
+### 概述
+
+agent_schedule.json 是任务执行的状态快照，记录：
+1. 任务基本信息（startTime、taskName、workflow、version）
+2. 所有参与的 agents 及其状态
+3. agent 流转记录（agentFlow）
+4. 任务待办列表（todos）
+5. 当前状态（currentState、currentStep、lastUpdate）
+
+### 文件位置
+
+`.opencode/doc/agent_schedule.json`
+
+### 初始化时机
+
+用户输入需求，开始执行 plan 时创建。
+
+### 初始化模板
+
+```json
+{
+  "startTime": "{ISO时间}",
+  "taskName": "{任务名称}",
+  "workflow": "prototype",
+  "workflowVersion": 2,
+  "agents": [],
+  "agentFlow": [],
+  "todos": [
+    { "id": "todo_0", "step": "plan", "content": "需求分析与计划", "status": "in_progress", "priority": "high" },
+    { "id": "todo_1", "step": "user_gate_plan", "content": "用户确认计划", "status": "pending", "priority": "high" },
+    { "id": "todo_2", "step": "parallel_design_prd", "content": "PRD与UI设计并行执行", "status": "pending", "priority": "high" },
+    { "id": "todo_3", "step": "user_gate_design_prd", "content": "用户确认PRD和设计", "status": "pending", "priority": "high" },
+    { "id": "todo_4", "step": "code", "content": "代码生成", "status": "pending", "priority": "high" },
+    { "id": "todo_5", "step": "qa", "content": "质量验证", "status": "pending", "priority": "high" }
+  ],
+  "currentState": "in_progress",
+  "currentStep": "plan",
+  "lastUpdate": "{ISO时间}"
+}
+```
+
+### 更新规则
+
+| 阶段 | 更新内容 |
+|------|----------|
+| **步骤开始** | 记录 agentFlow，更新 todos 中对应 step 的 status |
+| **Agent 调用** | 添加 agent 到 agents 列表，设置 status="in_progress"，记录 dispatchedAt |
+| **Agent 完成** | 更新 agent.status="completed"，记录 completedAt |
+| **用户确认** | 查找当前 step 对应的 todo，status 改为 completed，标记下一 todo 为 in_progress |
+| **任务完成** | 更新 currentState="done"，更新 currentStep="done" |
+
+### Agent 描述映射
+
+| step | Agent | description |
+|------|-------|-------------|
+| parallel_design_prd | product-manager | 需求分析与PRD输出 |
+| parallel_design_prd | ui-designer | UI设计规范 |
+| code | frontend-expert | Vue组件开发 |
+| qa | qa-engineer | 质量验证 |
+
+### 更新示例
+
+#### plan 步骤开始（用户确认后）
+```json
+{
+  "agentFlow": [
+    { "title": "需求分析与计划", "from": "project-manager", "to": "project-manager", "step": "plan", "transitionAt": "..." },
+    { "title": "用户确认计划", "from": "project-manager", "to": "project-manager", "step": "user_gate_plan", "transitionAt": "..." }
+  ],
+  "todos": [
+    { "id": "todo_0", "step": "plan", "status": "completed", ... },
+    { "id": "todo_1", "step": "user_gate_plan", "status": "completed", ... },
+    { "id": "todo_2", "step": "parallel_design_prd", "status": "in_progress", ... }
+  ],
+  "currentStep": "parallel_design_prd"
+}
+```
+
+#### parallel_design_prd 步骤调用 agent
+```json
+{
+  "agents": [
+    { "agent": "product-manager", "task": "parallel_design_prd", "description": "需求分析与PRD输出", "status": "in_progress", "dispatchedAt": "...", "completedAt": null },
+    { "agent": "ui-designer", "task": "parallel_design_prd", "description": "UI设计规范", "status": "in_progress", "dispatchedAt": "...", "completedAt": null }
+  ]
+}
+```
+
+### 读写操作
+
+- 读取: 使用 read 工具读取 `.opencode/doc/agent_schedule.json`
+- 写入: 使用 write 工具写入更新后的 JSON
+- 每次更新后更新 `lastUpdate` 字段为当前时间
+
+### 与 process.md 的关系
+
+- process.md: 简化的 YAML 格式，侧重流程控制
+- agent_schedule.json: 完整的 JSON 格式，侧重状态追踪和可视化
+- 两者同步更新，保持一致性
+
+---
+
 ## process.md 更新时机（必须严格遵守）
 
 | 阶段 | 触发时机 | 更新内容 |
 |------|---------|---------|
-| **初始化** | 用户输入需求，开始执行 plan 时 | 创建 process.md，设置 task、status、current |
-| **步骤执行** | agent 步骤执行完成后 | 验证产出物 → 更新 current |
-| **用户确认** | user_gate 步骤用户确认后 | completed += 上一步，current = 下一步 |
-| **并行完成** | parallel 步骤全部完成后 | 验证所有产出物 → 更新 current |
-| **任务完成** | qa 验证通过后 | completed += qa，status = done |
+| **初始化** | 用户输入需求，开始执行 plan 时 | 创建 process.md，设置 task、status、current；创建 agent_schedule.json |
+| **步骤执行** | agent 步骤执行完成后 | 验证产出物 → 更新 current → 更新 agent_schedule.json |
+| **用户确认** | user_gate 步骤用户确认后 | 更新 completed 和 current → 更新 agent_schedule.json 的 todos |
+| **并行完成** | parallel 步骤全部完成后 | 验证所有产出物 → 更新 current → 更新 agent_schedule.json |
+| **任务完成** | qa 验证通过后 | completed += qa，status = done → 更新 agent_schedule.json |
 
 ### process.md 格式
 
@@ -123,8 +229,8 @@ current: parallel_design_prd
 completed: [plan, user_gate_plan]
 pending: [user_gate_design_prd, code, qa]
 artifacts:
-  prd: .opencode/work/prd.md
-  design: .opencode/work/design.md
+  prd: .opencode/doc/prd.md
+  design: .opencode/doc/design.md
 ---
 
 ## 执行日志
@@ -152,8 +258,9 @@ artifacts:
 初始化流程：
 1. 读取 .opencode/worker/workflow.md 确认流程定义
 2. 读取 .opencode/worker/process.md 确认当前步骤（如不存在则初始化）
-3. 按流程逐步执行，每步完成后等待用户确认
-4. 禁止跳过任何步骤
+3. 读取或创建 .opencode/doc/agent_schedule.json
+4. 按流程逐步执行，每步完成后等待用户确认
+5. 禁止跳过任何步骤
 
 ## 核心职责
 
@@ -162,17 +269,18 @@ artifacts:
 3. 根据需求复杂度和 subagent 职责，动态规划执行计划
 4. 通过 task 工具调用子 agent 完成工作
 5. 实时更新进度到 .opencode/worker/process.md
-6. 控制流程节奏，确保每步用户确认
-7. 处理异常情况，协调返工和回溯
+6. 维护 agent_schedule.json 记录 agent 流转和状态
+7. 控制流程节奏，确保每步用户确认
+8. 处理异常情况，协调返工和回溯
 
 ## Subagent 职责清单
 
 | Agent | 职责 | 触发条件 | 产出 |
 |-------|------|---------|------|
-| product-manager | 需求分析、PRD 输出 | 需求需要结构化定义 | .opencode/work/prd.md |
-| ui-designer | 视觉设计、组件树、布局 | 需要界面设计规范 | .opencode/work/design.md |
+| product-manager | 需求分析、PRD 输出 | 需求需要结构化定义 | .opencode/doc/prd.md |
+| ui-designer | 视觉设计、组件树、布局 | 需要界面设计规范 | .opencode/doc/design.md |
 | frontend-expert | Vue 组件开发、代码实现 | 需要编写或修改代码 | .vue 文件 |
-| qa-engineer | 构建验证、代码审查 | 代码生成完成后 | .opencode/work/qa-report.md |
+| qa-engineer | 构建验证、代码审查 | 代码生成完成后 | .opencode/doc/qa-report.md |
 
 ## Task 工具调用规范
 
@@ -182,15 +290,15 @@ artifacts:
 - 并行调用时，分别构造独立的 task 调用
 
 调用示例:
-- product-manager: "基于以下用户需求输出结构化PRD文档，写入 .opencode/work/prd.md"
-- ui-designer: "基于用户需求输出UI设计规范，写入 .opencode/work/design.md"
-- frontend-expert: "读取 .opencode/work/design.md，基于UI设计规范生成Vue 2组件代码"
-- qa-engineer: "运行 npm run build 验证构建，检查代码规范，输出测试报告到 .opencode/work/qa-report.md"
+- product-manager: "基于以下用户需求输出结构化PRD文档，写入 .opencode/doc/prd.md"
+- ui-designer: "基于用户需求输出UI设计规范，写入 .opencode/doc/design.md"
+- frontend-expert: "读取 .opencode/doc/design.md，基于UI设计规范生成Vue 2组件代码"
+- qa-engineer: "运行 npm run build 验证构建，检查代码规范，输出测试报告到 .opencode/doc/qa-report.md"
 
 并行调用示例（parallel_design_prd 步骤）:
 - 同时调用 product-manager 和 ui-designer
-- product-manager prompt: "基于用户需求输出PRD到 .opencode/work/prd.md"
-- ui-designer prompt: "基于用户需求输出UI设计规范到 .opencode/work/design.md"
+- product-manager prompt: "基于用户需求输出PRD到 .opencode/doc/prd.md"
+- ui-designer prompt: "基于用户需求输出UI设计规范到 .opencode/doc/design.md"
 - 等待两者都完成，验证两个产出文件都存在
 
 ---
@@ -344,8 +452,8 @@ artifacts:
 {设计规范核心内容摘要，包括：布局风格、色彩方案、组件规范}
 
 ### 产出文件
-- PRD文档：.opencode/work/prd.md
-- 设计规范：.opencode/work/design.md
+- PRD文档：.opencode/doc/prd.md
+- 设计规范：.opencode/doc/design.md
 
 ---
 
@@ -392,16 +500,17 @@ plan 步骤中根据复杂度规划 agent 调用：
 ## 回溯处理
 
 当用户要求返回上一步或调整当前步骤时：
-1. 从 .opencode/work/ 目录恢复对应步骤的上下文
-2. 调用前端专家从 .opencode/work/backups/ 恢复代码文件
+1. 从 .opencode/doc/ 目录恢复对应步骤的上下文
+2. 调用前端专家从 .opencode/doc/backups/ 恢复代码文件
 3. 清除后续步骤的产出文件
 4. 更新 .opencode/worker/process.md 进度状态
-5. 重新调用对应角色 agent
+5. 更新 .opencode/doc/agent_schedule.json 的 todos 和 agentFlow
+6. 重新调用对应角色 agent
 
 ## 备份清理规则
 
 1. 每步用户确认后，调用前端专家清理该步骤产生的备份文件
-2. 整个任务完成后，清理 .opencode/work/backups/ 目录中的所有文件
+2. 整个任务完成后，清理 .opencode/doc/backups/ 目录中的所有文件
 3. 用户取消任务时，清理所有备份文件
 
 ## 错误处理
@@ -415,13 +524,13 @@ plan 步骤中根据复杂度规划 agent 调用：
 ## QA 问题修复流程（当测试报告存在必须修复问题时）
 
 ### 触发条件
-- qa-engineer 产出 .opencode/work/qa-report.md
+- qa-engineer 产出 .opencode/doc/qa-report.md
 - 测试报告中"必须修复"问题数量 > 0
 
 ### 处理逻辑
 
 1. **读取测试报告**
-   - 读取 .opencode/work/qa-report.md
+   - 读取 .opencode/doc/qa-report.md
    - 提取"必须修复"问题列表
 
 2. **调用前端专家修复**

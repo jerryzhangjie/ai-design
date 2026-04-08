@@ -71,5 +71,5 @@ version: 2
 
 | 步骤 | 行为 |
 |------|------|
-| frontend-expert | 构建成功 → 创建 `.opencode/work/.build-success` 标记 |
+| frontend-expert | 构建成功 → 创建 `.opencode/doc/.build-success` 标记 |
 | qa-engineer | 检查标记，存在则跳过构建验证 |
