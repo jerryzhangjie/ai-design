@@ -28,5 +28,5 @@ bash .opencode/skills/agent-doc-sync/scripts/sync.sh
 ## 注意事项
 
 - 所有输出必须使用中文
-- 同步前会先备份原文档到 `.opencode/work/backups/docs/`
+- 同步前会先备份原文档到 `.opencode/doc/backups/docs/`
 - 同步是幂等操作，可重复执行

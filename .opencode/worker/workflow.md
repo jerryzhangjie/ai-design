@@ -1,53 +1,89 @@
-# 工作流程定义
+---
+workflow: prototype
+version: 2
+---
 
-> 此文件为单一事实源，定义了多 Agent 流程的步骤顺序。不可被任何 Agent 修改。
+# 原型设计流程
 
-## 流程步骤
+## Agent 配置总览
 
-| 步骤 | Agent | 描述 | 产出 |
-|------|-------|------|------|
-| plan | project-manager | 需求分析，生成执行计划 | 执行计划文档 |
-| user_gate_plan | - | 用户确认执行计划 | 用户决策 |
-| parallel_design_prd | product-manager + ui-designer | 并行生成PRD和设计规范 | prd.md / prd-mindmap.json / prd-converted.json / design.md |
-| user_gate_design_prd | - | 用户确认PRD和设计 | 用户决策 |
-| frontend_arch | frontend-manager | 搭建路由/状态基建及占位文件，输出开发计划 | router / store / views占位 / frontend-plan.md |
-| frontend_common | frontend-component-expert | 开发公共组件与工具函数 | src/components/ / src/utils/ |
-| frontend_modules | frontend-module-developer | 开发具体业务页面 | src/views/ 完善实现 |
-| qa | qa-engineer | 构建验证与功能检查 | qa-report.md |
-| serve | - | 启动开发服务器 | 运行状态 |
+| Agent | 模式 | 描述 | 颜色      |
+|-------|------|------|---------|
+| project-manager | primary | 项目经理 - 流程总指挥 | primary |
+| product-manager | subagent | 产品经理 - 需求分析和PRD输出 | info    |
+| ui-designer | subagent | UI设计师 - 视觉风格定义 | accent  |
+| frontend-manager | subagent | 搭建路由/状态基建及占位文件，输出开发计划 | success |
+| frontend-component-expert | subagent | 开发公共组件与工具函数 | success |
+| frontend-module-developer | subagent | 开发具体业务页面 | success |
+| qa-engineer | subagent | 测试专家 - 构建验证和功能检查 | warning |
 
-## 流程规则
+## 步骤定义
 
-1. **顺序执行**：必须按步骤顺序执行，禁止跳步
-2. **用户确认**：每个 user_gate 步骤必须等待用户确认后才能继续
-3. **产出验证**：每个 agent 步骤完成后必须验证产出物存在且非空
-4. **状态更新**：process.md 必须在每个步骤完成后立即更新
+### 1. [plan] 需求分析与计划
+- agent: project-manager
+- 产出: 执行计划（对话中展示）
+- 下一: user_gate_plan
 
-## Agent 职责与文件边界
+### 2. [user_gate_plan] 用户确认计划
+- type: user_gate
+- 下一: parallel_design_prd
+- 选项: A确认 / B调整需求 / C取消
 
-| Agent | 可写目录 | 产出文件 | 读取文件 |
-|-------|---------|---------|---------|
-| project-manager | .opencode/worker/ | process.md | workflow.md, process.md |
-| product-manager | .opencode/work/ | prd.md, prd-mindmap.json, prd-converted.json | 用户需求 |
-| ui-designer | .opencode/work/ | design.md | 用户需求 |
-| frontend-manager | src/router/, src/store/, src/App.vue, src/views/*占位, .opencode/work/ | frontend-plan.md, 路由/状态基建, 占位文件 | prd.md, design.md |
-| frontend-component-expert | src/components/, src/utils/ | 公共组件, 工具函数 | frontend-plan.md, design.md |
-| frontend-module-developer | src/views/ | 业务页面 | prd.md, frontend-plan.md, design.md |
-| qa-engineer | .opencode/work/ | qa-report.md | prd.md, frontend-plan.md, design.md, src/ |
+### 3. [parallel_design_prd] PRD与设计并行执行
+- type: parallel
+- agents: [product-manager, ui-designer]
+- 并行产出:
+  - product-manager: prd.md, prd-mindmap.json, prd-converted.json
+  - ui-designer: design.md
+- 下一: user_gate_design_prd
 
-## 修改循环
+### 4. [user_gate_design_prd] 用户确认PRD和设计
+- type: user_gate
+- 下一: code
+- 选项: A确认 / B调整需求 / C仅调样式 / D返回上一步
 
-当用户在 user_gate_design_prd 步骤选择 B/C/D 时：
+### 5. [frontend_arch] 搭建路由/状态基建及占位文件，输出开发计划
+- agent: frontend-manager
+- 依赖: prd.md, design.md
+- 产出: /src/router, /src/store, /src/views占位, .opencode/doc/frontend-plan.md
+- 下一: frontend-component
 
-| 选择 | 操作 | 调用的 Agent |
-|------|------|-------------|
-| B（调整需求） | 清除所有产出物，回到 plan 步骤 | 项目经理重新分析 |
-| C（仅调整设计） | 清除 design.md，保留 PRD | 重新调用 ui-designer（附带修改意见） |
-| D（全部重来） | 清除所有产出物 | 重新并行调用 product-manager + ui-designer（附带修改意见） |
+### 6. [frontend-component] 开发公共组件与工具函数
+- agent: frontend-component-expert
+- 依赖: prd.md, design.md, frontend-plan.md
+- 产出: src/components/, src/utils/
+- 下一: qa
+- 
+### 7. [frontend_modules] 开发具体业务页面
+- agent: frontend-module-developer
+- 依赖: prd.md, design.md, frontend-plan.md
+- 产出: src/views/
+- 下一: qa
 
-修改迭代完成后，回到 user_gate_design_prd 重新确认，最多循环 3 次。
+### 8. [qa] 质量验证
+- agent: qa-engineer
+- 依赖: src/, .build-success（如存在则跳过构建）
+- 产出: qa-report.md
+- 下一: serve
 
-## 动态规划
+### 9. [serve] 启动服务
+- agent: project-manager
+- 触发: QA验证通过后自动启动
 
-- 简单修改（如"修改按钮颜色"）：plan → frontend-manager(模式B) → qa
-- 正常/复杂需求：完整走 frontend_arch → frontend_common → frontend_modules → qa
+### 10. [done] 完成
+- type: terminal
+
+## 并行工作模式
+
+在 `parallel_design_prd` 步骤中，产品经理和UI设计师同时工作：
+- 都基于**相同的用户需求**独立产出
+- 两者**不相互依赖**
+- 产品经理不知道UI设计，UI设计师不知道PRD
+- 前端专家在code阶段同时依赖两者产出
+
+## 构建状态管理
+
+| 步骤 | 行为 |
+|------|------|
+| frontend-expert | 构建成功 → 创建 `.opencode/doc/.build-success` 标记 |
+| qa-engineer | 检查标记，存在则跳过构建验证 |

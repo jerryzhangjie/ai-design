@@ -12,6 +12,7 @@ description: Agent 文档同步工具 - 当 Agent 定义变化时自动同步架
 ### 自动触发
 当以下文件发生变化时自动触发同步：
 - `.opencode/agents/*.md` - 任意 Agent 定义文件
+- `opencode.json` 中的 `agent` 配置段
 - `AGENTS.md` 中的多 Agent 协作章节
 
 ### 手动触发
@@ -21,7 +22,7 @@ description: Agent 文档同步工具 - 当 Agent 定义变化时自动同步架
 
 ### 1. 任何 Agent 变化 → 更新总览文档
 更新 `.opencode/agent-architecture-design/多Agent架构规划.md`：
-- 角色架构总览表（名称、职责、文件边界）
+- 角色架构总览表（名称、职责、模型、Mode、权限）
 - 角色职责边界图
 - 各角色详细定义章节
 - Subagent 职责清单
@@ -85,7 +86,7 @@ bash .opencode/skills/agent-doc-sync/scripts/sync.sh
 - 新增字段追加，删除字段标注
 
 ### 备份规则
-- 同步前先将原文档备份到 `.opencode/work/backups/docs/`
+- 同步前先将原文档备份到 `.opencode/doc/backups/docs/`
 - 备份命名：`{原文件名}.{时间戳}.md`
 - 同步完成后保留备份（手动清理）
 
@@ -95,4 +96,3 @@ bash .opencode/skills/agent-doc-sync/scripts/sync.sh
 - 同步是幂等操作，可重复执行
 - 不会删除任何现有文档内容，只会更新或追加
 - 如果 agent 定义文件不存在，跳过对应文档生成
-- 当前架构为三段式前端开发：frontend-manager → frontend-component-expert → frontend-module-developer
