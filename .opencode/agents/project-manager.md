@@ -46,21 +46,71 @@ permission:
 每次写入 agent_schedule.json 时，必须严格遵守以下格式规范：
 
 1. **使用 2 空格缩进**，禁止使用 Tab 缩进
-2. **字段顺序必须固定**，按照以下顺序排列：
-   - 顶层字段顺序：task, requirement, planType, workflow, workflowVersion, currentState, currentStep, startTime, lastUpdate, qa_fix_count, steps, agentFlow
-   - steps 内字段顺序：id, name, mode, status, startedAt, completedAt, userDecision, agents, artifacts, next
-   - agents 内字段顺序：name, description, status, dispatchedAt, completedAt
-   - artifacts 内字段顺序：path, producedBy, status
+2. **字段顺序必须固定**，按照以下顺序排列（附字段说明和允许值）：
+
+   顶层字段：
+   | 字段 | 类型 | 说明 | 允许值 |
+   |------|------|------|--------|
+   | task | string | 项目名称/任务标题 | 任意非空字符串 |
+   | requirement | string | 需求描述 | 任意非空字符串 |
+   | planType | string | 流程类型 | `full` / `design_only` / `simple_fix` / `design_review` |
+   | workflow | string | 工作流标识 | 固定 `"prototype"` |
+   | workflowVersion | string | 工作流版本 | 固定 `"2"` |
+   | currentState | string | 流程状态 | `in_progress` / `done` / `cancelled` |
+   | currentStep | string | 当前步骤id | 对应 steps 中某个步骤的 id |
+   | lastUpdate | string | 最后更新时间 | yyyy-MM-dd HH:mm:ss 格式 |
+   | qa_fix_count | number | QA修复次数 | 整数，≥ 0 |
+   | steps | array | 步骤列表 | 见下方 steps 字段 |
+   | agentFlow | array | agent分发记录 | 见下方 agentFlow 字段 |
+
+   steps 内字段：
+   | 字段 | 类型 | 说明 | 允许值 |
+   |------|------|------|--------|
+   | id | string | 步骤唯一标识 | 如 `plan`、`parallel_design_prd` 等 |
+   | name | string | 步骤显示名称 | 如"需求分析与计划"等 |
+   | mode | string | 执行模式 | `primary` / `user_gate` / `parallel` / `single` / `terminal` |
+   | status | string | 步骤状态 | `pending` / `in_progress` / `completed` / `failed` / `cancelled` |
+   | startedAt | string/null | 开始时间 | yyyy-MM-dd HH:mm:ss 或 null |
+   | completedAt | string/null | 完成时间 | yyyy-MM-dd HH:mm:ss 或 null |
+   | userDecision | string/null | 用户选择 | `A` / `B` / `C` / `D` 或 null |
+   | agents | array | 参与的agent列表 | 见下方 agents 字段 |
+   | artifacts | array | 产出物列表 | 见下方 artifacts 字段 |
+   | next | string/null | 下一步骤id | 步骤id 或 null（done步骤） |
+
+   agents 内字段：
+   | 字段 | 类型 | 说明 | 允许值 |
+   |------|------|------|--------|
+   | name | string | agent标识 | 如 `product-manager`、`ui-designer` 等 |
+   | description | string | agent职责描述 | 如"需求分析与PRD输出"等 |
+   | status | string | agent状态 | `pending` / `in_progress` / `completed` |
+   | dispatchedAt | string/null | 分发时间 | yyyy-MM-dd HH:mm:ss 或 null |
+   | completedAt | string/null | 完成时间 | yyyy-MM-dd HH:mm:ss 或 null |
+
+   artifacts 内字段：
+   | 字段 | 类型 | 说明 | 允许值 |
+   |------|------|------|--------|
+   | path | string | 产出物文件路径 | 如 `docs/prd.md`、`docs/design.md` 等 |
+   | producedBy | string | 产出agent | 对应 agents 中的 name |
+   | status | string | 产出物状态 | `pending` / `verified` |
+
+   agentFlow 内字段：
+   | 字段 | 类型 | 说明 | 允许值 |
+   |------|------|------|--------|
+   | from | string | 分发源 | 固定 `"project-manager"` |
+   | to | string | 分发目标agent | 如 `product-manager`、`ui-designer` 等 |
+   | step | string | 所属步骤id | 对应 steps 中的 id |
+   | timestamp | string | 分发时间 | yyyy-MM-dd HH:mm:ss 格式 |
+
 3. **字符串值使用双引号**，禁止单引号
 4. **空值使用 null**，禁止使用空字符串 "" 或 undefined
 5. **数组最后一个元素后禁止尾逗号**
 6. **对象最后一个字段后禁止尾逗号**
 7. **写入前必须先读取当前内容**，基于当前内容修改，禁止从零重写整个文件（E1 初始化除外）
-8. **只修改修改协议中指定的字段**，其他字段原样保留
+8. **只修改修改协议中对应事件的字段**，禁止多改，禁止漏改
 
 ### 时间字段规范
 
-所有时间字段（startedAt、completedAt、dispatchedAt、timestamp、lastUpdate、startTime）必须使用当前真实时间，格式为 yyyy-MM-dd HH:mm:ss。
+所有时间字段（startedAt、completedAt、dispatchedAt、lastUpdate）必须使用当前真实时间，格式为 yyyy-MM-dd HH:mm:ss。
 
 **获取方式：通过 bash 工具执行 `date +"%Y-%m-%d %H:%M:%S"` 获取当前时间。**
 
@@ -255,7 +305,7 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 **修改**：创建整个文件，从 workflow.md 步骤模板池选取步骤，根据 planType 裁剪，所有 step.status 初始化为 pending（第一个步骤 plan 设为 in_progress）。
 
-**时间字段**：startTime 和 lastUpdate 使用 bash 获取的当前时间。plan 步骤的 startedAt 使用同一时间。
+**时间字段**：lastUpdate 使用 bash 获取的当前时间。plan 步骤的 startedAt 使用同一时间。
 
 **校验**：创建后校验 1 次。
 
@@ -270,7 +320,10 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 - 当前步骤的 `startedAt` → now（复用同一时间戳）
 - 当前步骤所有 agents 的 `status` → "in_progress"
 - 当前步骤所有 agents 的 `dispatchedAt` → now（复用同一时间戳）
-- `agentFlow` 追加所有 agent 的分发记录
+- `agentFlow` 追加所有 agent 的分发记录，每条记录格式：
+  ```json
+  { "from": "project-manager", "to": "agent名称", "step": "步骤id", "timestamp": "yyyy-MM-dd HH:mm:ss" }
+  ```
 
 **时间复用**：同一步骤启动中所有 now 字段使用同一个时间值，只获取一次时间。
 
