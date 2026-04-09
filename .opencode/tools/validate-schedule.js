@@ -30,10 +30,9 @@ const VALID_MODES = ['primary', 'user_gate', 'parallel', 'sequential', 'single',
 
 // 定义正确的字段顺序
 const TOP_LEVEL_ORDER = ['task', 'requirement', 'planType', 'workflow', 'workflowVersion', 'currentState', 'currentStep', 'startTime', 'lastUpdate', 'qa_fix_count', 'steps', 'agentFlow']
-const STEP_ORDER = ['id', 'name', 'mode', 'status', 'startedAt', 'completedAt', 'userDecision', 'agents', 'artifacts', 'log', 'next']
+const STEP_ORDER = ['id', 'name', 'mode', 'status', 'startedAt', 'completedAt', 'userDecision', 'agents', 'artifacts', 'next']
 const AGENT_ORDER = ['name', 'description', 'status', 'dispatchedAt', 'completedAt']
 const ARTIFACT_ORDER = ['path', 'producedBy', 'status']
-const LOG_ORDER = ['agent', 'action', 'result', 'timestamp']
 
 function checkFieldOrder(obj, expectedOrder, path) {
   const errors = []
@@ -52,7 +51,7 @@ function isISO8601(value) {
   if (value === null || value === undefined) return true
   if (typeof value !== 'string') return false
   // 允许的格式：2026-04-09T10:00:00Z 或 2026-04-09T10:00:00.000Z
-  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/.test(value)
+  return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)
 }
 
 function validateSchedule(schedulePath) {
@@ -91,7 +90,7 @@ function validateSchedule(schedulePath) {
   for (const field of timeFields) {
     if (schedule[field] !== undefined && schedule[field] !== null && schedule[field] !== '') {
       if (!isISO8601(schedule[field])) {
-        errors.push(`顶层 ${field} 时间格式错误: "${schedule[field]}"，应为 ISO 8601 格式（如 2026-04-09T15:30:45Z）`)
+        errors.push(`顶层 ${field} 时间格式错误: "${schedule[field]}"，应为 yyyy-MM-dd HH:mm:ss 格式（如 2026-04-09 15:30:45）`)
       }
     }
   }
@@ -204,24 +203,6 @@ function validateSchedule(schedulePath) {
       }
     }
 
-    // 检查 log
-    if (step.log && Array.isArray(step.log)) {
-      for (let l = 0; l < step.log.length; l++) {
-        const logEntry = step.log[l]
-        const logPath = `${stepPath}.log[${l}]`
-
-        // log 字段顺序
-        const logErrors = checkFieldOrder(logEntry, LOG_ORDER, logPath)
-        errors.push(...logErrors)
-
-        // timestamp 格式检查
-        if (logEntry.timestamp !== undefined && logEntry.timestamp !== null) {
-          if (!isISO8601(logEntry.timestamp)) {
-            errors.push(`${logPath}.timestamp 时间格式错误: "${logEntry.timestamp}"`)
-          }
-        }
-      }
-    }
   }
 
   return {

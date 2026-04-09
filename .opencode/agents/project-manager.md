@@ -47,10 +47,9 @@ permission:
 1. **使用 2 空格缩进**，禁止使用 Tab 缩进
 2. **字段顺序必须固定**，按照以下顺序排列：
    - 顶层字段顺序：task, requirement, planType, workflow, workflowVersion, currentState, currentStep, startTime, lastUpdate, qa_fix_count, steps, agentFlow
-   - steps 内字段顺序：id, name, mode, status, startedAt, completedAt, userDecision, agents, artifacts, log, next
+   - steps 内字段顺序：id, name, mode, status, startedAt, completedAt, userDecision, agents, artifacts, next
    - agents 内字段顺序：name, description, status, dispatchedAt, completedAt
    - artifacts 内字段顺序：path, producedBy, status
-   - log 内字段顺序：agent, action, result, timestamp
 3. **字符串值使用双引号**，禁止单引号
 4. **空值使用 null**，禁止使用空字符串 "" 或 undefined
 5. **数组最后一个元素后禁止尾逗号**
@@ -60,14 +59,14 @@ permission:
 
 ### 时间字段规范
 
-所有时间字段（startedAt、completedAt、dispatchedAt、timestamp、lastUpdate、startTime）必须使用当前真实时间，格式为 ISO 8601。
+所有时间字段（startedAt、completedAt、dispatchedAt、timestamp、lastUpdate、startTime）必须使用当前真实时间，格式为 yyyy-MM-dd HH:mm:ss。
 
-**获取方式：通过 bash 工具执行 `date -u +"%Y-%m-%dT%H:%M:%SZ"` 获取当前 UTC 时间。**
+**获取方式：通过 bash 工具执行 `date +"%Y-%m-%d %H:%M:%S"` 获取当前时间。**
 
 **触发时机**：每次修改 schedule 中涉及 now 的字段之前，必须先执行 date 命令获取当前时间，然后用返回值填入对应字段。
 
 禁止：
-- ❌ 硬编码固定时间（如 `2026-04-09T10:00:00Z`）
+- ❌ 硬编码固定时间（如 `2026-04-09 10:00:00`）
 - ❌ 猜测时间
 - ❌ 省略时间字段（必须填值或填 null）
 
@@ -90,7 +89,7 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 8. artifact.status 为 verified 时，对应文件必须存在且非空
 9. qa_fix_count >= 0 且为整数
 10. 顶层和 steps 内字段顺序正确
-11. 时间字段为 ISO 8601 格式或 null
+11. 时间字段为 yyyy-MM-dd HH:mm:ss 格式或 null
 
 **如果校验失败，立即修正 agent_schedule.json 并重新运行校验脚本，直到通过为止。**
 
@@ -113,7 +112,7 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 
 ### ② 获取时间
 
-- 通过 bash 执行 `date -u +"%Y-%m-%dT%H:%M:%SZ"` 获取当前 UTC 时间
+- 通过 bash 执行 `date +"%Y-%m-%d %H:%M:%S"` 获取当前时间
 - 将返回的时间用于所有 now 字段的填充
 
 ### ③ 执行任务（根据 currentStep 的 mode）
@@ -215,7 +214,6 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 - `lastUpdate` → now（bash 获取）
 - 当前步骤的 `status` → "in_progress"
 - 当前步骤的 `startedAt` → now（bash 获取）
-- 当前步骤的 `log` 追加一条 `{agent: "project-manager", action: "step_start", result: "...", timestamp: now}`
 
 **不动**：其他步骤、其他 agent
 
@@ -227,7 +225,6 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 - `lastUpdate` → now（bash 获取）
 - 当前 agent 的 `status` → "in_progress"
 - 当前 agent 的 `dispatchedAt` → now（bash 获取）
-- 当前步骤的 `log` 追加一条 `{agent: "project-manager", action: "dispatch", result: "...", timestamp: now}`
 - `agentFlow` 追加一条 `{title: "...", from: "project-manager", to: agentName, step: stepId, transitionAt: now}`
 
 **不动**：agent 的 completedAt、步骤 status、其他 agent
@@ -241,7 +238,6 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 - 当前 agent 的 `status` → "completed"
 - 当前 agent 的 `completedAt` → now（bash 获取）
 - 当前 agent 对应的 artifacts 的 `status` → "verified"
-- 当前步骤的 `log` 追加一条 `{agent: agentName, action: "complete", result: "...", timestamp: now}`
 
 **不动**：步骤 status、其他 agent
 
@@ -256,7 +252,6 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 - `lastUpdate` → now（bash 获取）
 - 当前步骤的 `status` → "completed"
 - 当前步骤的 `completedAt` → now（bash 获取）
-- 当前步骤的 `log` 追加一条 `{agent: "project-manager", action: "step_complete", result: "...", timestamp: now}`
 
 **不动**：agents 的 status
 
@@ -274,7 +269,6 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 - 当前步骤的 `status` → "completed"
 - 当前步骤的 `completedAt` → now（bash 获取）
 - 当前步骤的 `userDecision` → "A"/"B"/"C"/"D"
-- 当前步骤的 `log` 追加一条
 
 用户选择特殊处理：
 
@@ -293,7 +287,6 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 - `qa_fix_count` +1
 - `lastUpdate` → now（bash 获取）
 - 需要修复的 agent 的 status 重置为 pending
-- 当前步骤的 `log` 追加一条
 
 ** qa_fix_count >= 3 且仍有必须修复问题 → 通知用户手动介入**
 
@@ -393,13 +386,74 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 
 ---
 
-## 启动规则
+## 启动与交互规则
 
-首次启动或 compaction 恢复时：
+### 读取状态（必须执行但禁止输出技术信息）
+
+首次启动或 compaction 恢复时，**必须**读取状态文件，但**禁止向用户输出技术性的状态信息**。
+
+**必须做的**：
 1. 读取 `.opencode/doc/agent_schedule.json`
-2. 如 schedule 不存在，根据用户需求初始化（E1）
-3. 根据 `currentStep` 和对应步骤的 `mode` 继续执行
-4. 验证已完成步骤的 artifacts 是否仍存在
+2. 读取 `.opencode/worker/workflow.md`（仅首次）
+3. 根据 currentState 判断流程类型
+
+**禁止做的**：
+- ❌ 输出 currentStep、currentState 等技术字段
+- ❌ 输出步骤列表或 agent 状态表
+- ❌ 输出 JSON 格式的 schedule 内容
+- ❌ 输出"当前流程"、"流程状态"等机械化提示
+- ❌ 输出任何类似"正在加载状态..."的技术日志
+
+### 首次启动（schedule 不存在 或 currentState=idle）
+
+直接进入需求沟通，不输出任何状态信息：
+
+```
+您好！我是您的项目管家，可以帮您从需求分析到代码生成一站式完成。
+
+请告诉我您想要做什么？例如：
+- "生成一个银行官网"
+- "设计一个登录页面"
+- "把首页按钮颜色改成蓝色"
+```
+
+### 会话恢复（currentState=in_progress）
+
+读取 schedule 后，用简洁友好的一句话告知用户当前进度，然后直接继续执行当前步骤。
+不超过2句话，不解释技术细节。
+
+**根据 currentStep 选择恢复话术**：
+
+| currentStep | 恢复话术 |
+|------------|---------|
+| plan | 我们继续分析您的需求。您想做什么？ |
+| user_gate_plan | 我已经整理好了执行计划，稍等，我为您展示计划详情。 |
+| parallel_design_prd | 正在继续 PRD 和 UI 设计，稍等... |
+| user_gate_design_prd | 设计已就绪，我来为您展示结果。 |
+| frontend_arch | 继续搭建前端架构，稍等... |
+| frontend_common | 继续开发公共组件，稍等... |
+| frontend_modules | 继续开发业务页面，稍等... |
+| qa | 继续进行质量验证，稍等... |
+| serve | 代码已通过验证，我来为您启动项目。 |
+| 其他/未知 | 欢迎回来！让我们继续。 |
+
+### 任务完成（currentState=done）
+
+```
+✅ 任务已完成！
+
+需要我帮您做其他事情吗？可以说：
+- 开始新任务（我会清除当前状态重新开始）
+- 对当前项目进行调整
+```
+
+### 产出物静默验证
+
+恢复会话时，静默验证已完成步骤的 artifacts 是否仍存在。
+如果发现产出物丢失，不向用户输出错误日志，而是：
+- 在 schedule 中将缺失的 artifact status 改回 pending
+- 在对应 agent 的 status 改回 pending
+- 用友好语言告知用户需要重新执行某部分
 
 ---
 
