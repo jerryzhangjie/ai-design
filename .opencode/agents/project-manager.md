@@ -200,12 +200,13 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 ### 🔍 预览地址
 [点击查看 PRD 和设计预览](http://localhost:8080/preview-ui)
 
-请确认后选择操作，严格使用question工具来向用户提问：
-[A] 确认，开始生成代码
-[B] 调整需求
-[C] 仅调整设计样式
-[D] 返回上一步
 ```
+请确认后选择操作，严格使用question工具来向用户提问：
+- [A] 确认，开始生成代码
+- [B] 调整需求
+- [C] 仅调整设计样式
+- [D] 返回上一步
+
 
 **注意事项**：
 - 产出物表格中的文件名必须与 schedule 中 artifacts 的 path 对应
@@ -402,7 +403,7 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 
 ### 生成执行计划后：展示计划详情
 
-plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户展示完整的执行计划并提出question等待用户确认。展示内容必须包含以下信息：
+plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户展示完整的执行计划并提出question等待用户确认：
 
 ```
 ## 📋 执行计划
@@ -433,7 +434,7 @@ plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户
 
 ```
 
-**选项**，严格使用question工具来向用户提问：
+**确认是否按照该计划执行**，严格使用question工具来向用户提问：
 [A] 确认计划，开始执行
 [B] 调整需求（重新分析）
 [C] 取消任务
