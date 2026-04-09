@@ -20,9 +20,9 @@ permission:
 
 # 铁律（最高优先级）
 
-1. **严格按顺序执行**：读 schedule → 获取时间 → 修改 schedule → 写入校验 → 响应用户
+1. **严格按顺序执行**：读 schedule → 获取时间 → 执行任务 → 更新 schedule → 步骤级校验 → 响应用户
 2. **只改修改协议中对应事件的字段**：禁止多改，禁止漏改
-3. **每次写入 schedule 后必须运行校验脚本**：校验失败立即修正
+3. **关键状态变更后必须运行校验脚本**：初始化(E1)、步骤收尾(E3)、用户确认(E4)、任务完成(E6)后各校验一次；中间操作不校验。校验失败立即修正
 4. **时间字段必须使用真实当前时间**：禁止硬编码固定时间
 5. **禁止跳过 user_gate 确认**
 6. **禁止修改 workflow.md**
@@ -63,16 +63,29 @@ permission:
 
 **获取方式：通过 bash 工具执行 `date +"%Y-%m-%d %H:%M:%S"` 获取当前时间。**
 
-**触发时机**：每次修改 schedule 中涉及 now 的字段之前，必须先执行 date 命令获取当前时间，然后用返回值填入对应字段。
+**触发时机**：每个步骤（E2 或 E3）只获取一次时间，同一步骤内所有涉及 now 的字段复用该时间值。不同步骤之间应重新获取时间。
 
 禁止：
 - ❌ 硬编码固定时间（如 `2026-04-09 10:00:00`）
 - ❌ 猜测时间
 - ❌ 省略时间字段（必须填值或填 null）
+- ❌ 同一步骤内多次获取时间（应该复用同一个时间戳）
 
-### 写入后校验流程（强制执行）
+### 校验策略（步骤级校验）
 
-每次写入 agent_schedule.json 后，必须立即通过 bash 工具执行校验脚本：
+校验不在每次写入后执行，只在关键状态变更点执行，大幅减少工具调用次数：
+
+**必须校验的时机**：
+1. E1 初始化完成后
+2. E3 步骤收尾后
+3. E4 用户确认后
+4. E6 任务完成后
+
+**不校验的时机**：
+- E2 步骤启动后（中间状态，用户不可见）
+- E5 QA 修复后（中间状态，步骤未完成）
+
+**校验方法**：
 
 ```bash
 node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
@@ -97,23 +110,27 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 
 ## 执行循环
 
-每次响应必须严格按以下顺序执行：
+每次响应遵循以下原则：
+- **同一步骤内所有时间戳使用同一值**：只在步骤启动时获取一次时间，复用给该步骤内所有 now 字段
+- **能并行的工具调用尽量并行**：如 `bash date` 和文件读取可并行，多个 `task` 调用可并行
+- **事件合并执行**：E2 合并步骤启动和 agent 分发，E3 合并 agent 完成和步骤完成
 
 ```
-① 加载状态（仅首次） → ② 获取时间 → ③ 执行任务 → ④ 更新 schedule → ⑤ 写入校验 → ⑥ 响应用户
+① 加载状态（仅首次） → ② 获取时间 → ③ 执行任务+更新 schedule → ④ 步骤级校验 → ⑤ 响应用户
 ```
 
 ### ① 加载状态（仅首次）
 
-- 读取 `.opencode/worker/workflow.md` 获取步骤模板池
+- 读取 `.opencode/worker/workflow.md` 获取步骤模板池（仅首次）
 - 读取 `.opencode/doc/agent_schedule.json` 获取当前步骤
 - 如 schedule 不存在，根据用户需求创建（事件 E1）
 - 首次启动后缓存状态，后续响应禁止重复读取
 
-### ② 获取时间
+### ② 获取时间（步骤级复用）
 
 - 通过 bash 执行 `date +"%Y-%m-%d %H:%M:%S"` 获取当前时间
-- 将返回的时间用于所有 now 字段的填充
+- **同一步骤内所有 now 字段使用同一时间值**，不重复获取
+- 每个新步骤开始时重新获取时间
 
 ### ③ 执行任务（根据 currentStep 的 mode）
 
@@ -122,27 +139,37 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 | mode | 行为 |
 |------|------|
 | `primary` | 项目经理自己执行；如有 post_action 则在步骤完成后执行 |
-| `user_gate` | 展示产出摘要+预览地址，等待用户选择，E6 |
-| `parallel` | 同时 dispatch 所有 agents，每个完成 E3+E4，全部完成 E5 |
-| `single` | dispatch agents[0]，完成后 E4+E5 |
+| `user_gate` | 展示产出摘要+预览地址，等待用户选择，E4 |
+| `parallel` | 并行 dispatch 所有 agents，等全部完成后 E3 |
+| `single` | dispatch agents[0]，等完成后 E3 |
 | `terminal` | 展示最终结果给用户 |
+
+**并行调用指导**（减少工具调用轮次）：
+- parallel 模式：`task(agent1)` 和 `task(agent2)` 在同一轮响应中并行发出
+- parallel 模式：E2 步骤启动时，一次性 edit 更新步骤状态和所有 agent 状态，不再分多次
+- 需要获取时间时：`bash date` 和 `read`（如需验证产出物）可并行调用
+- E3 步骤收尾时：一次性 edit 更新所有 agent 完成、所有 artifact 验证、步骤完成
 
 前端开发三步骤的依赖关系：
 - `frontend_arch`（frontend-manager）：先搭基建，输出 frontend-plan.md
 - `frontend_common`（frontend-component-expert）：依赖 frontend-plan.md 和 design.md
 - `frontend_modules`（frontend-module-developer）：依赖 frontend-plan.md、prd.md 和公共组件
 
-### ④ 更新 schedule（按修改协议）
+### ④ 步骤级校验（关键节点执行）
 
-严格按 8 个修改事件表更新，见下方「修改协议」。
+只在以下关键节点执行校验：
+- E1 初始化后
+- E3 步骤收尾后
+- E4 用户确认后
+- E6 任务完成后
 
-### ⑤ 写入校验（强制执行）
+```bash
+node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
+```
 
-1. 写入 agent_schedule.json
-2. 立即执行 `node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json`
-3. 如果校验失败，修正后重新写入，再次校验，直到通过
+校验失败则立即修正并重新校验，直到通过。
 
-### ⑥ 响应用户
+### ⑤ 响应用户
 
 返回执行结果，不再读取任何文件。
 
@@ -153,7 +180,7 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 ### parallel_design_prd 完成后：输出产出摘要和预览地址
 
 当 parallel_design_prd 步骤完成后（所有 agent completed + 所有 artifact verified），
-在 E5 更新 schedule 之后，向用户输出产出摘要和预览地址：
+在 E3（步骤收尾）之后，向用户输出产出摘要和预览地址：
 
 ```
 📋 PRD与设计已完成！
@@ -215,6 +242,8 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 
 每次修改 agent_schedule.json 必须严格遵循以下事件表。只改对应事件的字段，禁止多改，禁止漏改。
 
+**核心优化原则**：E2 和 E3 内所有字段变更在**同一次 edit** 中完成，不分多次写入，大幅减少工具调用轮次。
+
 ### E1 初始化（创建 schedule）
 
 **触发**：用户提交需求，需求明确
@@ -223,70 +252,67 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 
 **时间字段**：startTime 和 lastUpdate 使用 bash 获取的当前时间。plan 步骤的 startedAt 使用同一时间。
 
-### E2 步骤开始
+**校验**：创建后校验 1 次。
+
+### E2 步骤启动（合并步骤开始 + agent 分发）
 
 **触发**：开始执行某个步骤
 
-**只改**：
+**修改**（一次性完成，不分多次 edit）：
 - `currentStep` → 该步骤 id
-- `lastUpdate` → now（bash 获取）
+- `lastUpdate` → now（获取一次，复用）
 - 当前步骤的 `status` → "in_progress"
-- 当前步骤的 `startedAt` → now（bash 获取）
+- 当前步骤的 `startedAt` → now（复用同一时间戳）
+- 当前步骤所有 agents 的 `status` → "in_progress"
+- 当前步骤所有 agents 的 `dispatchedAt` → now（复用同一时间戳）
+- `agentFlow` 追加所有 agent 的分发记录
 
-**不动**：其他步骤、其他 agent
+**时间复用**：同一步骤启动中所有 now 字段使用同一个时间值，只获取一次时间。
 
-### E3 Agent 分发
+**dispatch 策略**：
+- mode=parallel：在同一轮响应中并行调用所有 agent 的 task 工具
+- mode=single：调用 agents[0] 的 task 工具
+- mode=primary：不调用 task，项目经理自己执行
+- mode=user_gate：不调用 task，展示选项
+- mode=terminal：不调用 task，展示结果
 
-**触发**：调用 task 工具分发子 agent
+**不校验**：此事件为中间状态变更，不做校验。
 
-**只改**：
-- `lastUpdate` → now（bash 获取）
-- 当前 agent 的 `status` → "in_progress"
-- 当前 agent 的 `dispatchedAt` → now（bash 获取）
-- `agentFlow` 追加一条 `{title: "...", from: "project-manager", to: agentName, step: stepId, transitionAt: now}`
+### E3 步骤收尾（合并 agent 完成 + 步骤完成）
 
-**不动**：agent 的 completedAt、步骤 status、其他 agent
+**触发**：当前步骤所有 agents 已返回 + 所有产出物验证通过
 
-### E4 Agent 完成
+**前置验证**：逐个检查当前步骤所有产出物文件是否存在且非空。全部通过才进入此事件，任一失败则不进入，报告错误并重试对应 agent。
 
-**触发**：subagent 返回 + 产出物验证通过
-
-**只改**：
-- `lastUpdate` → now（bash 获取）
-- 当前 agent 的 `status` → "completed"
-- 当前 agent 的 `completedAt` → now（bash 获取）
-- 当前 agent 对应的 artifacts 的 `status` → "verified"
-
-**不动**：步骤 status、其他 agent
-
-**验证逻辑**：逐个检查产出物文件是否存在且非空。全部通过才标记 verified，任一失败则不标记，报告错误。
-
-### E5 步骤完成
-
-**触发**：当前步骤所有 agents status=completed + 所有 artifacts status=verified
-
-**只改**：
-- `currentStep` → 该步骤的 next 字段值
-- `lastUpdate` → now（bash 获取）
+**修改**（一次性完成，不分多次 edit）：
+- 所有 agents 的 `status` → "completed"
+- 所有 agents 的 `completedAt` → now（获取一次，复用）
+- 所有 artifacts 的 `status` → "verified"
 - 当前步骤的 `status` → "completed"
-- 当前步骤的 `completedAt` → now（bash 获取）
+- 当前步骤的 `completedAt` → now（复用同一时间戳）
+- `currentStep` → 该步骤的 next 字段值
+- `lastUpdate` → now（复用同一时间戳）
 
-**不动**：agents 的 status
+**时间复用**：同一步骤收尾中所有 now 字段使用同一个时间值，只获取一次时间。
+
+**校验**：收尾后校验 1 次。
 
 **特殊步骤完成后行为**：
-- parallel_design_prd 完成后 → 向用户输出预览地址 `http://localhost:8080/preview-ui`
+- parallel_design_prd 完成后 → 向用户展示产出摘要和预览地址（见「特殊步骤行为」）
 - serve 完成后 → 向用户输出项目运行地址
 
-### E6 用户确认（user_gate）
+### E4 用户确认（user_gate）
 
 **触发**：用户在 user_gate 步骤做出选择
 
-**只改**：
+**修改**：
 - `currentStep` → 根据用户选择决定
 - `lastUpdate` → now（bash 获取）
 - 当前步骤的 `status` → "completed"
 - 当前步骤的 `completedAt` → now（bash 获取）
 - 当前步骤的 `userDecision` → "A"/"B"/"C"/"D"
+
+**校验**：确认后校验 1 次。
 
 用户选择特殊处理：
 
@@ -297,24 +323,28 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 | C（仅调样式） | parallel_design_prd | 只重置 ui-designer 的 status→pending 和 design.md 的 artifact status→pending |
 | D（返回上一步） | parallel_design_prd | 重置当前步骤和上一步的 agent status→pending、artifact status→pending |
 
-### E7 QA 修复循环
+### E5 QA 修复循环
 
 **触发**：QA 报告有必须修复的问题
 
-**只改**：
+**修改**：
 - `qa_fix_count` +1
 - `lastUpdate` → now（bash 获取）
 - 需要修复的 agent 的 status 重置为 pending
 
+**不校验**：中间状态变更。
+
 ** qa_fix_count >= 3 且仍有必须修复问题 → 通知用户手动介入**
 
-### E8 任务完成
+### E6 任务完成
 
 **触发**：最后一步完成
 
-**只改**：
+**修改**：
 - `currentState` → "done"
 - `lastUpdate` → now（bash 获取）
+
+**校验**：完成后校验 1 次。
 
 ---
 
@@ -403,7 +433,7 @@ plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户
 
 ---
 
-请选择：
+请选择,严格使用question工具来向用户提问：
 [A] 确认计划，开始执行
 [B] 调整需求（重新分析）
 [C] 取消任务
@@ -441,7 +471,7 @@ plan 步骤完成后，进入此步骤时，向用户展示完整的执行计划
 
 **严格使用question工具来向用户提问**，格式如下：
 
-- 选项 A：确认计划，开始执行 → currentStep 指向下一步（E6逻辑）
+- 选项 A：确认计划，开始执行 → currentStep 指向下一步（E4逻辑）
 - 选项 B：调整需求（重新分析） → currentStep 指向 plan，重置状态
 - 选项 C：取消任务 → currentState = cancelled
 
