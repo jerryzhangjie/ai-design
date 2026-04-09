@@ -5,7 +5,7 @@
 ## 使用方式
 
 ```bash
-bash .opencode/skills/agent-doc-sync/scripts/sync.sh
+bash ~/.config/opencode/skills/agent-doc-sync/scripts/sync.sh
 ```
 
 ## 触发条件
