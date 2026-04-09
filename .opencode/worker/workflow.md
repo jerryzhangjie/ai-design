@@ -1,6 +1,6 @@
 ---
 workflow: prototype
-version: 3
+version: 2
 ---
 
 # 原型设计流程
@@ -21,14 +21,12 @@ version: 3
 | frontend-module-developer | 业务页面实现 | subagent | views/*.vue |
 | qa-engineer | 构建验证、功能检查 | subagent | .opencode/doc/qa-report.md |
 
----
 
 ## 步骤模板池
 
 每个步骤定义了完整的元数据，schedule 实例化时从中复制。
 schedule 生成后与本文档无运行时依赖关系。
 
----
 
 ### [plan] 需求分析与计划
 
@@ -41,8 +39,6 @@ schedule 生成后与本文档无运行时依赖关系。
     生成 agent_schedule.json 快照。同时生成执行计划展示给用户确认。
 - **next_candidates**: [user_gate_plan, parallel_design_prd, frontend_arch]
 
----
-
 ### [user_gate_plan] 用户确认计划
 
 - **mode**: user_gate
@@ -53,8 +49,6 @@ schedule 生成后与本文档无运行时依赖关系。
     - **B**: 调整需求 → 清除 schedule，重新 plan
     - **C**: 取消任务 → currentState = cancelled
 - **next_candidates**: [parallel_design_prd, frontend_arch]
-
----
 
 ### [parallel_design_prd] PRD与UI设计并行执行
 
@@ -80,8 +74,6 @@ schedule 生成后与本文档无运行时依赖关系。
     **预览地址：** [http://localhost:8080/preview-ui](http://localhost:8080/preview-ui)
     用户可通过此地址查看 PRD 和设计的可视化效果。
 - **next_candidates**: [user_gate_design_prd, done]
-
----
 
 ### [user_gate_design_prd] 用户确认PRD和设计
 

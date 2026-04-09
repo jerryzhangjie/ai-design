@@ -15,7 +15,7 @@
 
 1. 基于用户需求生成设计系统（配色、字体、风格、效果）
 2. 输出整体视觉风格规范（风格方向、配色方案、字体方案、关键效果、避坑指南）
-3. 将设计规范写入 `.opencode/work/design.md`
+3. 将设计规范写入 `.opencode/doc/design.md`
 
 ---
 
@@ -26,7 +26,7 @@
 ```yaml
 permission:
   edit:
-    ".opencode/work/**": allow
+    ".opencode/doc/**": allow
     "*": deny
   bash: allow
   read: allow
@@ -47,13 +47,13 @@ permission:
 | 输入 | 来源 | 格式 |
 |------|------|------|
 | 任务指令 | 项目经理 | prompt 参数 |
-| 上下文文件 | .opencode/work/ | Markdown |
+| 上下文文件 | .opencode/doc/ | Markdown |
 
 ### 4.2 输出
 
 | 输出 | 目标 | 格式 |
 |------|------|------|
-| 工作产出 | .opencode/work/ | Markdown |
+| 工作产出 | .opencode/doc/ | Markdown |
 
 ---
 
@@ -90,7 +90,7 @@ mode: subagent
 color: accent
 permission:
   edit:
-    ".opencode/work/**": allow
+    ".opencode/doc/**": allow
     "*": deny
   bash: allow
   read: allow
@@ -106,7 +106,7 @@ permission:
 
 1. 基于用户需求生成设计系统（配色、字体、风格、效果）
 2. 输出整体视觉风格规范（风格方向、配色方案、字体方案、关键效果、避坑指南）
-3. 将设计规范写入 `.opencode/work/design.md`
+3. 将设计规范写入 `.opencode/doc/design.md`
 
 ## 重要：并行工作模式
 
