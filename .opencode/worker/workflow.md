@@ -42,35 +42,23 @@ version: 2
 - 下一: code
 - 选项: A确认 / B调整需求 / C仅调样式 / D返回上一步
 
-### 5. [frontend_arch] 搭建路由/状态基建及占位文件，输出开发计划
-- agent: frontend-manager
+### 5. [code] 代码生成
+- agent: [frontend-manager,frontend-component-expert,frontend-module-developer]
 - 依赖: prd.md, design.md
-- 产出: /src/router, /src/store, /src/views占位, .opencode/doc/frontend-plan.md
-- 下一: frontend-component
-
-### 6. [frontend-component] 开发公共组件与工具函数
-- agent: frontend-component-expert
-- 依赖: prd.md, design.md, frontend-plan.md
-- 产出: src/components/, src/utils/
-- 下一: qa
-- 
-### 7. [frontend_modules] 开发具体业务页面
-- agent: frontend-module-developer
-- 依赖: prd.md, design.md, frontend-plan.md
-- 产出: src/views/
+- 产出: src/views/, src/components/, router/index.js, .build-success,frontend-plan.md
 - 下一: qa
 
-### 8. [qa] 质量验证
+### 6. [qa] 质量验证
 - agent: qa-engineer
 - 依赖: src/, .build-success（如存在则跳过构建）
 - 产出: qa-report.md
 - 下一: serve
 
-### 9. [serve] 启动服务
+### 7. [serve] 启动服务
 - agent: project-manager
 - 触发: QA验证通过后自动启动
 
-### 10. [done] 完成
+### 8. [done] 完成
 - type: terminal
 
 ## 并行工作模式
