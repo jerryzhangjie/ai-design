@@ -181,7 +181,7 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 ### parallel_design_prd 完成后：输出产出摘要和预览地址
 
 当 parallel_design_prd 步骤完成后（所有 agent completed + 所有 artifact verified），
-在 E3（步骤收尾）之后，向用户输出产出摘要和预览地址：
+在 E3（步骤收尾）之后，向用户输出产出摘要和预览地址，输出模板：
 
 ```
 📋 PRD与设计已完成！
@@ -199,7 +199,7 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 | design.md | 整体视觉风格规范，包含配色方案、字体方案、关键效果、间距系统 |
 
 ### 🔍 预览地址
-[点击查看 PRD 和设计预览](http://localhost:8080/preview-ui)
+请前往查看，[点击查看 PRD 和设计预览](http://localhost:8080/ai-design/#/flowchart/)
 
 ```
 
