@@ -23,13 +23,14 @@
       "steps": 50,
       "permission": {
         "edit": {
-          ".opencode/worker/process.md": "allow",
+          ".opencode/doc/agent_schedule.json": "allow",
           ".opencode/work/**": "allow",
           "*": "deny"
         },
         "bash": "allow",
         "read": "allow",
         "task": "allow",
+        "question": "allow",
         "external_directory": {
           ".opencode/**": "allow",
           "src/**": "allow",

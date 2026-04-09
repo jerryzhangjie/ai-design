@@ -113,6 +113,6 @@ src/
 ### 流程控制
 
 - 流程定义: `.opencode/worker/workflow.md`（不可变）
-- 运行时状态: `.opencode/worker/process.md`
+- 运行时状态: `.opencode/doc/agent_schedule.json`
 - 每步完成后等待用户确认（user_gate 步骤）
 - 产出物写入 `.opencode/work/` 目录
