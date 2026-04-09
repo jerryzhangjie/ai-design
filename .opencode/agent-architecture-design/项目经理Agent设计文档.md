@@ -17,7 +17,7 @@
 2. 需求不明确时主动提问澄清
 3. 根据需求复杂度和 subagent 职责，动态规划执行计划
 4. 通过 task 工具调用子 agent 完成工作
-5. 实时更新进度到 .opencode/worker/process.md
+5. 实时更新进度到 .opencode/doc/process.md
 6. 控制流程节奏，确保每步用户确认
 7. 处理异常情况，协调返工和回溯
 
@@ -30,7 +30,7 @@
 ```yaml
 permission:
   edit:
-    ".opencode/worker/process.md": allow
+    ".opencode/doc/process.md": allow
     ".opencode/doc/**": allow
     "*": deny
   bash: allow
@@ -108,7 +108,7 @@ color: primary
 steps: 30
 permission:
   edit:
-    ".opencode/worker/process.md": allow
+    ".opencode/doc/process.md": allow
     ".opencode/doc/**": allow
     "*": deny
   bash: allow
@@ -135,7 +135,7 @@ permission:
 ### ① 加载状态（首次执行或状态重置时）
 
 - 读取 `.opencode/worker/workflow.md` 获取流程定义
-- 读取 `.opencode/worker/process.md` 获取当前步骤
+- 读取 `.opencode/doc/process.md` 获取当前步骤
 - **以下情况需要重新读取**：首次启动、状态重置（process.md被清除）、compaction 恢复
 - **后续响应中直接使用缓存状态，禁止重复读取**
 
@@ -252,7 +252,7 @@ artifacts:
 
 初始化流程：
 1. 读取 .opencode/worker/workflow.md 确认流程定义
-2. 读取 .opencode/worker/process.md 确认当前步骤（如不存在则初始化）
+2. 读取 .opencode/doc/process.md 确认当前步骤（如不存在则初始化）
 3. 按流程逐步执行，每步完成后等待用户确认
 4. 禁止跳过任何步骤
 
@@ -262,7 +262,7 @@ artifacts:
 2. 需求不明确时主动提问澄清
 3. 根据需求复杂度和 subagent 职责，动态规划执行计划
 4. 通过 task 工具调用子 agent 完成工作
-5. 实时更新进度到 .opencode/worker/process.md
+5. 实时更新进度到 .opencode/doc/process.md
 6. 控制流程节奏，确保每步用户确认
 7. 处理异常情况，协调返工和回溯
 
@@ -496,7 +496,7 @@ plan 步骤中根据复杂度规划 agent 调用：
 1. 从 .opencode/doc/ 目录恢复对应步骤的上下文
 2. 调用前端专家从 .opencode/doc/backups/ 恢复代码文件
 3. 清除后续步骤的产出文件
-4. 更新 .opencode/worker/process.md 进度状态
+4. 更新 .opencode/doc/process.md 进度状态
 5. 重新调用对应角色 agent
 
 ## 备份清理规则
