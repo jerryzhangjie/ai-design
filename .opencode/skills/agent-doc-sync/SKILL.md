@@ -86,7 +86,7 @@ bash .opencode/skills/agent-doc-sync/scripts/sync.sh
 - 新增字段追加，删除字段标注
 
 ### 备份规则
-- 同步前先将原文档备份到 `.opencode/doc/backups/docs/`
+- 同步前先将原文档备份到 `docs/backups/docs/`
 - 备份命名：`{原文件名}.{时间戳}.md`
 - 同步完成后保留备份（手动清理）
 

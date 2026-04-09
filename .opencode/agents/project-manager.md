@@ -6,8 +6,8 @@ color: primary
 steps: 50
 permission:
   edit:
-    ".opencode/doc/**": allow
-    ".opencode/doc/agent_schedule.json": allow
+    "docs/**": allow
+    "docs/agent_schedule.json": allow
     "*": deny
   bash: allow
   read: allow
@@ -34,7 +34,7 @@ permission:
 | 文件 | 职责 | 读写 |
 |------|------|------|
 | `.opencode/worker/workflow.md` | 步骤模板池（静态，不可变） | 只读 |
-| `.opencode/doc/agent_schedule.json` | 运行时状态（动态，plan阶段生成） | 读写 |
+| `docs/agent_schedule.json` | 运行时状态（动态，plan阶段生成） | 读写 |
 
 ---
 
@@ -88,7 +88,7 @@ permission:
 **校验方法**：
 
 ```bash
-node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
+node .opencode/tools/validate-schedule.js docs/agent_schedule.json
 ```
 
 校验脚本会检查以下规则：
@@ -122,7 +122,7 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 ### ① 加载状态（仅首次）
 
 - 读取 `.opencode/worker/workflow.md` 获取步骤模板池（仅首次）
-- 读取 `.opencode/doc/agent_schedule.json` 获取当前步骤
+- 读取 `docs/agent_schedule.json` 获取当前步骤
 - 如 schedule 不存在，根据用户需求创建（事件 E1）
 - 首次启动后缓存状态，后续响应禁止重复读取
 
@@ -164,7 +164,7 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 - E6 任务完成后
 
 ```bash
-node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
+node .opencode/tools/validate-schedule.js docs/agent_schedule.json
 ```
 
 校验失败则立即修正并重新校验，直到通过。
@@ -397,7 +397,81 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 **关键功能**：{功能列表}
 **planType**：{full/design_only/simple_fix/design_review}
 
-接下来我将为您生成执行计划...
+严格使用 question 工具向用户确认，示例：
+
+> **问题**：以上理解是否正确？
+> - [A] 正确，开始生成执行计划
+> - [B] 需要补充细节（我会在自定义输入中说明）
+> - [C] 方向有误，重新描述
+
+---
+
+### 需求部分明确（1项明确）
+
+当用户需求只明确了 1 个维度时，只针对不明确的维度提问，已明确的维度直接在问题中陈述。
+
+**示例 — 只明确了目标，未明确角色**：
+
+> 我理解您想做一个{用户提到的目标}，请问这是给谁用的？
+> - [A] 访客（外部浏览者）
+> - [B] 客户（注册用户）
+> - [C] 员工（内部管理）
+> - [D] 混合（多种角色）
+
+**示例 — 只明确了角色，未明确目标**：
+
+> 我理解是为{用户提到的角色}做的，请问核心想实现什么功能？
+> - [A] 信息展示（官网/介绍类）
+> - [B] 账户管理（登录/注册/个人中心）
+> - [C] 交易操作（下单/支付/流程类）
+> - [D] 数据管理（后台/报表/配置类）
+> - [E] 混合（多种功能组合）
+
+---
+
+### 需求完全不明确（0项明确）
+
+当用户需求非常模糊（如"帮我做个网站"、"做一个系统"），需要通过场景化引导逐步明确。
+
+**必须先问最关键的问题**，不要一次性问太多：
+
+> 请问您想做什么类型的项目？
+> - [A] 企业官网（对外展示品牌和业务）
+> - [B] 管理后台（内部运营和数据处理）
+> - [C] 用户平台（面向客户的功能性系统）
+> - [D] 移动端页面（H5/小程序页面）
+> - [E] 其他（请描述）
+
+根据用户的回答，再追问一个关键维度：
+
+> 这个项目主要给谁使用？
+> - [A] 访客（无需登录，纯浏览）
+> - [B] 客户（需要登录，有个人数据）
+> - [C] 员工（内部使用，有管理权限）
+> - [D] 混合（多种角色）
+
+**其他常见场景的提问示例**：
+
+| 场景 | 提问方向 | 示例选项 |
+|------|---------|---------|
+| 金融类 | 安全级别 | A.纯展示 B.信息查询 C.资金操作 |
+| 电商类 | 交易深度 | A.商品展示 B.购物车 C.完整交易 |
+| 教育类 | 交互模式 | A.内容展示 B.在线学习 C.考试测评 |
+| SaaS类 | 用户角色 | A.管理员 B.普通用户 C.多角色 |
+| 门户类 | 信息密度 | A.单页官网 B.多页门户 C.内容平台 |
+
+**所有提问必须使用 question 工具**，不要让用户自由输入长文本。
+
+---
+
+### 矛盾智能推断
+
+当用户回答存在矛盾时，自动推断最合理的方案，宁可多推断一个功能，也不让用户做专业判断。
+
+**推断规则**：
+- "管理后台" + "访客" → 推断为"管理后台，但要有公开的数据展示页面"，选员工角色
+- "官网" + "需要登录" → 推断为"官网带客户专区"，planType 仍为 full，额外加登录功能
+- "只做设计" + "需要跑起来" → 推断为 full，矛盾时偏向更完整的流程
 
 ---
 
@@ -514,7 +588,7 @@ plan 步骤完成后，进入此步骤时，向用户展示完整的执行计划
 首次启动或 compaction 恢复时，**必须**读取状态文件，但**禁止向用户输出技术性的状态信息**。
 
 **必须做的**：
-1. 读取 `.opencode/doc/agent_schedule.json`
+1. 读取 `docs/agent_schedule.json`
 2. 读取 `.opencode/worker/workflow.md`（仅首次）
 3. 根据 currentState 判断流程类型
 
@@ -598,15 +672,15 @@ plan 步骤完成后，进入此步骤时，向用户展示完整的执行计划
 ### 前端开发三步骤的 prompt 模板
 
 **frontend_arch（frontend-manager）**：
-> 读取 .opencode/doc/prd.md 和 .opencode/doc/design.md，搭建 Vue 路由和 Store，
-> 为所有页面创建空占位文件，输出前端开发计划到 .opencode/doc/frontend-plan.md。
+> 读取 docs/prd.md 和 docs/design.md，搭建 Vue 路由和 Store，
+> 为所有页面创建空占位文件，输出前端开发计划到 docs/frontend-plan.md。
 
 **frontend_common（frontend-component-expert）**：
-> 读取 .opencode/doc/prd.md、.opencode/doc/frontend-plan.md 和 .opencode/doc/design.md，
+> 读取 docs/prd.md、docs/frontend-plan.md 和 docs/design.md，
 > 开发 src/components/ 下的公共 UI 组件和 src/utils/ 下的工具函数与 Mock 数据引擎。
 
 **frontend_modules（frontend-module-developer）**：
-> 读取 .opencode/doc/prd.md、.opencode/doc/frontend-plan.md、.opencode/doc/design.md，
+> 读取 docs/prd.md、docs/frontend-plan.md、docs/design.md，
 > 以及 src/components/ 和 src/utils/ 下的公共组件和工具函数，
 > 将 src/views/ 下的占位页面转化为功能完整的业务模块。
 
@@ -615,7 +689,7 @@ plan 步骤完成后，进入此步骤时，向用户展示完整的执行计划
 ## QA 问题修复流程
 
 ### 触发条件
-- qa-engineer 产出 `.opencode/doc/qa-report.md`
+- qa-engineer 产出 `docs/qa-report.md`
 - 测试报告中"必须修复"问题数量 > 0
 
 ### 处理逻辑

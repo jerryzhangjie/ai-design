@@ -25,7 +25,7 @@
       "steps": 50,
       "permission": {
         "edit": {
-          ".opencode/doc/agent_schedule.json": "allow",
+          "docs/agent_schedule.json": "allow",
           ".opencode/work/**": "allow",
           "*": "deny"
         },
@@ -48,7 +48,7 @@
       "steps": 30,
       "permission": {
         "edit": {
-          ".opencode/doc/**": "allow",
+          "docs/**": "allow",
           "*": "deny"
         },
         "bash": "allow",
@@ -63,7 +63,7 @@
       "steps": 20,
       "permission": {
         "edit": {
-          ".opencode/doc/**": "allow",
+          "docs/**": "allow",
           "*": "deny"
         },
         "bash": "allow",
@@ -78,7 +78,7 @@
       "steps": 40,
       "permission": {
         "edit": {
-          ".opencode/doc/**": "allow",
+          "docs/**": "allow",
           "src/**": "allow",
           "*": "deny"
         },
@@ -97,7 +97,7 @@
       "steps": 40,
       "permission": {
         "edit": {
-          ".opencode/doc/**": "allow",
+          "docs/**": "allow",
           "src/**": "allow",
           "*": "deny"
         },
@@ -116,7 +116,7 @@
       "steps": 40,
       "permission": {
         "edit": {
-          ".opencode/doc/**": "allow",
+          "docs/**": "allow",
           "src/**": "allow",
           "*": "deny"
         },
@@ -135,7 +135,7 @@
       "steps": 20,
       "permission": {
         "edit": {
-          ".opencode/doc/**": "allow",
+          "docs/**": "allow",
           "*": "deny"
         },
         "bash": "allow",

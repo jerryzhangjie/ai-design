@@ -4,7 +4,7 @@
  * agent_schedule.json 校验脚本
  * 
  * 用法：node .opencode/tools/validate-schedule.js [schedule文件路径]
- * 默认路径：.opencode/doc/agent_schedule.json
+ * 默认路径：docs/agent_schedule.json
  * 
  * 校验规则：
  * 1. JSON 格式合法
@@ -219,7 +219,7 @@ function validateSchedule(schedulePath) {
 }
 
 // 主程序
-const schedulePath = process.argv[2] || '.opencode/doc/agent_schedule.json'
+const schedulePath = process.argv[2] || 'docs/agent_schedule.json'
 console.log(`校验文件: ${schedulePath}\n`)
 
 const result = validateSchedule(schedulePath)

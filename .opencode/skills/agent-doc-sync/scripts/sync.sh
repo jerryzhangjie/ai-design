@@ -196,13 +196,13 @@ $(echo "$agent_content" | awk '
 | 输入 | 来源 | 格式 |
 |------|------|------|
 | 任务指令 | 项目经理 | prompt 参数 |
-| 上下文文件 | .opencode/doc/ | Markdown |
+| 上下文文件 | docs/ | Markdown |
 
 ### 4.2 输出
 
 | 输出 | 目标 | 格式 |
 |------|------|------|
-| 工作产出 | .opencode/doc/ | Markdown |
+| 工作产出 | docs/ | Markdown |
 
 ---
 

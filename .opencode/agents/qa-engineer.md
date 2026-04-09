@@ -6,7 +6,7 @@ color: warning
 steps: 20
 permission:
   edit:
-    ".opencode/doc/**": allow
+    "docs/**": allow
     "*": deny
   read: allow
   bash: allow
@@ -29,7 +29,7 @@ permission:
 4. 分析构建错误（如有）
 5. 功能性代码检查（语法、跳转、交互）
 6. 关键规范检查（name、scoped）
-7. 生成测试报告到 `.opencode/doc/qa-report.md`
+7. 生成测试报告到 `docs/qa-report.md`
 
 **耗时控制**：单次测试目标 < 30 秒（如构建已通过，仅需几秒）
 

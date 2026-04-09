@@ -6,7 +6,7 @@ steps: 30
 color: info
 permission:
   edit:
-    ".opencode/doc/**": allow
+    "docs/**": allow
     "*": deny
   bash: allow
   read: allow
@@ -29,10 +29,10 @@ permission:
 ## 工作流程（简化高效版 - 批量生成 统一验证）
 
 1. **分析需求**：分析用户需求，识别业务模块，生成完整的 Markdown PRD 文档内容
-2. **写入PRD**：调用 Write 工具，将 Markdown PRD 写入 `.opencode/doc/prd.md`
-3. **生成JSON**：基于 PRD 内容提取结构化数据，生成思维导图 JSON，调用 Write 工具写入 `.opencode/doc/prd-mindmap.json`
-4. **转换格式**：调用 Bash 工具运行转换脚本 `node .opencode/tools/convert-old-to-new.js --input .opencode/doc/prd-mindmap.json --output .opencode/doc/prd-converted.json`
-5. **统一验证**：调用 Glob 工具检查3个文件是否都存在（模式：`.opencode/doc/prd*`）
+2. **写入PRD**：调用 Write 工具，将 Markdown PRD 写入 `docs/prd.md`
+3. **生成JSON**：基于 PRD 内容提取结构化数据，生成思维导图 JSON，调用 Write 工具写入 `docs/prd-mindmap.json`
+4. **转换格式**：调用 Bash 工具运行转换脚本 `node .opencode/tools/convert-old-to-new.js --input docs/prd-mindmap.json --output docs/prd-converted.json`
+5. **统一验证**：调用 Glob 工具检查3个文件是否都存在（模式：`docs/prd*`）
 6. **重试处理**：如有文件缺失，重新写入缺失文件（最多重试1次）
 7. **返回报告**：返回完成信息，必须包含已成功创建的3个文件路径列表
 
@@ -41,12 +41,12 @@ permission:
 使用 bash 工具调用转换脚本：
 
 ```bash
-node .opencode/tools/convert-old-to-new.js --input .opencode/doc/prd-mindmap.json --output .opencode/doc/prd-converted.json
+node .opencode/tools/convert-old-to-new.js --input docs/prd-mindmap.json --output docs/prd-converted.json
 ```
 
 脚本说明：
-- 输入：`.opencode/doc/prd-mindmap.json`（产品经理生成的思维导图原始数据）
-- 输出：`.opencode/doc/prd-converted.json`（流程序列图就绪格式，含 workflows、lines、metadata）
+- 输入：`docs/prd-mindmap.json`（产品经理生成的思维导图原始数据）
+- 输出：`docs/prd-converted.json`（流程序列图就绪格式，含 workflows、lines、metadata）
 - 脚本会自动计算节点位置、生成连线、验证数据完整性
 - 如果脚本执行失败，分析错误原因并重试，最多重试 2 次
 
@@ -90,7 +90,7 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/doc/prd-mindmap.jso
 
 ## 输出规范
 
-### 1. Markdown PRD（`.opencode/doc/prd.md`）
+### 1. Markdown PRD（`docs/prd.md`）
 
 ```markdown
 # 产品需求文档
@@ -123,7 +123,7 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/doc/prd-mindmap.jso
 - 可验证的功能清单
 ```
 
-### 2. 思维导图JSON（`.opencode/doc/prd-mindmap.json`）
+### 2. 思维导图JSON（`docs/prd-mindmap.json`）
 
 ```json
 {
@@ -169,7 +169,7 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/doc/prd-mindmap.jso
 }
 ```
 
-### 3. 流程序列图JSON（`.opencode/doc/prd-converted.json`）
+### 3. 流程序列图JSON（`docs/prd-converted.json`）
 
 由转换脚本自动生成，包含：
 - `workflows`：工作流列表，每个工作流含 workflowId、name、nodes（含 nodeId、pageId、position）
@@ -252,7 +252,7 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/doc/prd-mindmap.jso
 - [ ] 所有 navigationType 字段为 "页面导航"
 
 ### 文件存在性检查（统一验证）
-- [ ] 批量写入完成后，调用 Glob 工具验证 `.opencode/doc/prd*` 包含3个文件
+- [ ] 批量写入完成后，调用 Glob 工具验证 `docs/prd*` 包含3个文件
 - [ ] 如有缺失，重新写入缺失文件（最多重试1次）
 - [ ] 最终确认：3个文件都存在后再返回完成信息
 

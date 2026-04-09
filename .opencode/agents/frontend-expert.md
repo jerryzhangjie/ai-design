@@ -14,7 +14,7 @@ permission:
 
 ## 核心职责
 
-1. 修改代码前先将原文件备份到 `.opencode/doc/backups/`
+1. 修改代码前先将原文件备份到 `docs/backups/`
 2. 根据 UI 设计规范生成 Vue 2 SFC 组件
 3. 配置路由（router/index.js）
 4. 管理状态（Vuex，如需要）
@@ -25,27 +25,27 @@ permission:
 
 ## 工作流程
 
-1. 读取 `.opencode/doc/design.md` 获取 UI 设计规范
+1. 读取 `docs/design.md` 获取 UI 设计规范
 2. 读取项目现有代码结构
-3. 修改任何文件前，先备份到 `.opencode/doc/backups/`
+3. 修改任何文件前，先备份到 `docs/backups/`
 4. 生成/修改 Vue 组件文件
 5. 更新路由配置
 6. 运行 `npm run build` 验证构建
-7. 如构建成功，写入构建状态到 `.opencode/doc/.build-status.json`
+7. 如构建成功，写入构建状态到 `docs/.build-status.json`
 8. 如构建失败，尝试修复并重新验证（最多3次）
 9. 如仍失败，报告具体错误并终止
 
 ## 构建状态管理
 
-- 构建成功后，创建标记文件 `.opencode/doc/.build-success`（空文件）
+- 构建成功后，创建标记文件 `docs/.build-success`（空文件）
 - 构建失败时不创建此文件
 - 此标记用于测试专家判断构建是否已通过，避免重复构建
 
 ## 备份规则
 
-- 修改任何文件前，先将原文件复制到 `.opencode/doc/backups/`
+- 修改任何文件前，先将原文件复制到 `docs/backups/`
 - 备份文件命名：原文件名 + 时间戳（如 `UserList.vue.20260402100000`）
-- 清理命令：`rm -rf .opencode/doc/backups/*`
+- 清理命令：`rm -rf docs/backups/*`
 
 ## 代码规范（必须严格遵守）
 

@@ -14,12 +14,12 @@ version: 2
 | Agent | 角色 | mode | 默认产出 |
 |-------|------|------|---------|
 | project-manager | 流程总指挥、用户沟通 | primary | agent_schedule.json、执行计划 |
-| product-manager | 需求分析、PRD输出 | subagent | .opencode/doc/prd.md 等 |
-| ui-designer | 视觉风格定义 | subagent | .opencode/doc/design.md |
+| product-manager | 需求分析、PRD输出 | subagent | docs/prd.md 等 |
+| ui-designer | 视觉风格定义 | subagent | docs/design.md |
 | frontend-manager | 路由/状态基建、占位文件 | subagent | router, store, views占位, frontend-plan.md |
 | frontend-component-expert | 公共组件、工具函数 | subagent | components/*.vue, utils/*.js |
 | frontend-module-developer | 业务页面实现 | subagent | views/*.vue |
-| qa-engineer | 构建验证、功能检查 | subagent | .opencode/doc/qa-report.md |
+| qa-engineer | 构建验证、功能检查 | subagent | docs/qa-report.md |
 
 
 ## 步骤模板池
@@ -57,13 +57,13 @@ schedule 生成后与本文档无运行时依赖关系。
     - product-manager: 需求分析与PRD输出
     - ui-designer: UI设计规范
 - **artifacts**:
-    - path: .opencode/doc/prd.md
+    - path: docs/prd.md
       producedBy: product-manager
-    - path: .opencode/doc/prd-mindmap.json
+    - path: docs/prd-mindmap.json
       producedBy: product-manager
-    - path: .opencode/doc/prd-converted.json
+    - path: docs/prd-converted.json
       producedBy: product-manager
-    - path: .opencode/doc/design.md
+    - path: docs/design.md
       producedBy: ui-designer
 - **description**: |
     产品经理和UI设计师基于相同的用户需求独立工作，并行产出。
@@ -99,9 +99,9 @@ schedule 生成后与本文档无运行时依赖关系。
     - frontend-manager: 搭建路由/状态基建及占位文件，输出开发计划
 - **depends_on**: [parallel_design_prd]
 - **artifacts**:
-    - path: .opencode/doc/frontend-plan.md
+    - path: docs/frontend-plan.md
       producedBy: frontend-manager
-    - path: .opencode/doc/.build-success
+    - path: docs/.build-success
       producedBy: frontend-manager
 - **description**: |
     frontend-manager 读取 prd.md 和 design.md，搭建 Vue 路由、Vuex Store，
@@ -147,7 +147,7 @@ schedule 生成后与本文档无运行时依赖关系。
 - **agents**:
     - qa-engineer: 构建验证和功能检查
 - **artifacts**:
-    - path: .opencode/doc/qa-report.md
+    - path: docs/qa-report.md
       producedBy: qa-engineer
 - **description**: |
     运行构建验证和代码质量检查。
@@ -215,5 +215,5 @@ simple_fix 场景的 agent 选择说明：
 
 | 步骤 | 行为 |
 |------|------|
-| frontend-manager | 构建成功 → 创建 `.opencode/doc/.build-success` 标记 |
+| frontend-manager | 构建成功 → 创建 `docs/.build-success` 标记 |
 | qa-engineer | 检查标记，存在则跳过构建验证 |
