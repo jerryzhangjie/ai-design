@@ -20,7 +20,9 @@ bash .opencode/skills/agent-doc-sync/scripts/sync.sh
    - 项目经理 → 项目经理Agent设计文档.md
    - 产品经理 → 产品经理Agent设计文档.md
    - UI设计师 → UI设计师Agent设计文档.md
-   - 前端专家 → 前端专家Agent设计文档.md
+   - 前端技术经理 → 前端技术经理Agent设计文档.md
+   - 前端组件专家 → 前端组件专家Agent设计文档.md
+   - 前端模块开发 → 前端模块开发Agent设计文档.md
    - 测试专家 → 测试专家Agent设计文档.md
 
 ## 注意事项

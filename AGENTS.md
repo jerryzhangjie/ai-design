@@ -20,10 +20,6 @@ npm run build     # 生产构建
 npm run preview   # 本地预览生产构建
 ```
 
-**当前未配置测试和 lint 脚本。** 如需添加：
-- 测试: `npm i -D vitest @vue/test-utils jsdom` 然后添加 `"test": "vitest"`
-- Lint: `npm i -D eslint eslint-plugin-vue` 然后添加 `"lint": "eslint src/ --ext .js,.vue"`
-
 ## 架构
 
 ```
@@ -32,9 +28,9 @@ src/
 ├── App.vue              # 根组件 (<router-view />)
 ├── router/index.js      # Vue Router 3 (history 模式)
 ├── store/index.js       # Vuex 3 store
-├── views/               # 页面级组件
-│   └── Home.vue
-└── components/          # 可复用组件 (当前为空)
+├── views/               # 页面级组件（由 frontend-module-developer 完善）
+├── components/          # 公共可复用组件（由 frontend-component-expert 开发）
+└── utils/               # 工具函数和 Mock 数据（由 frontend-component-expert 开发）
 ```
 
 ## 代码风格
@@ -76,48 +72,47 @@ src/
 - 使用 Flexbox 布局
 - 全局重置仅在 `App.vue` 中
 
-## 添加新功能
-
-### 新页面
-1. 创建 `src/views/PageName.vue`
-2. 在 `src/router/index.js` 中添加路由
-
-### 新组件
-1. 创建 `src/components/ComponentName.vue`
-2. 在父组件中局部注册 `components: {}`
-
-### 新 Vuex 模块
-1. 在 `src/store/index.js` 中添加模块，或拆分到 `src/store/modules/`
-2. 在 `modules: {}` 中注册
-
 ## 多 Agent 协作
 
-### Agent 架构
+### Agent 架构（三段式前端开发）
 
-| Agent | 模式 | 职责 |
-|-------|------|------|
-| `project-manager` | primary | 流程编排，用户第一接触点 |
-| `product-manager` | subagent | 需求分析，PRD 输出 |
-| `ui-designer` | subagent | 视觉设计，组件树，布局 |
-| `frontend-expert` | subagent | Vue 2 组件开发 |
-| `qa-engineer` | subagent | 构建验证，代码审查 |
+| Agent | 模式 | 职责 | 文件边界 |
+|-------|------|------|---------|
+| `project-manager` | primary | 流程编排，用户第一接触点 | .opencode/worker/ |
+| `product-manager` | subagent | 需求分析，PRD + 思维导图输出 | .opencode/work/prd* |
+| `ui-designer` | subagent | 视觉风格定义（整体配色/字体/效果） | .opencode/work/design.md |
+| `frontend-manager` | subagent | 工程架构、路由状态基建、任务拆分 | src/router/, src/store/, src/App.vue, src/views/*占位 |
+| `frontend-component-expert` | subagent | 公共UI组件 + 工具函数 + Mock数据 | src/components/, src/utils/ |
+| `frontend-module-developer` | subagent | 具体业务页面实现与逻辑集成 | src/views/ |
+| `qa-engineer` | subagent | 构建验证，代码质量检查 | .opencode/work/qa-report.md |
 
 ### 工作流
 
 ```
 用户请求 → project-manager (计划) → 用户确认
-  → product-manager (PRD) → 用户确认
-  → ui-designer (设计规范) → 用户确认
-  → frontend-expert (代码) → qa-engineer (验证) → 完成
+  → product-manager + ui-designer (并行: PRD + 设计) → 用户确认
+  → frontend-manager (架构基建 + 开发计划)
+  → frontend-component-expert (公共组件 + 工具函数)
+  → frontend-module-developer (业务页面)
+  → qa-engineer (质量验证) → 完成
 ```
 
-- 每步完成后等待用户确认
-- 产出物写入 `.opencode/work/` 目录
-- 进度追踪在 `.opencode/worker/process.md`
-- 流程定义在 `.opencode/worker/workflow.md` (不可变)
+### 文件边界规则（红线）
 
-### 代码生成规则
+- **frontend-manager** 只创建路由、状态、布局和页面占位文件，不写业务逻辑
+- **frontend-component-expert** 只写 src/components/ 和 src/utils/，不碰 views 和 router
+- **frontend-module-developer** 只写 src/views/ 及其私有子组件，不碰 router、store、公共组件
+- **qa-engineer** 只读不写代码，产出测试报告
+
+### 代码修改规则
 
 - 所有生成代码必须遵循本文件规范
 - 组件遵循 Vue 2 SFC 规范 (Options API, scoped 样式)
 - 修改文件前先备份到 `.opencode/work/backups/`
+
+### 流程控制
+
+- 流程定义: `.opencode/worker/workflow.md`（不可变）
+- 运行时状态: `.opencode/worker/process.md`
+- 每步完成后等待用户确认（user_gate 步骤）
+- 产出物写入 `.opencode/work/` 目录

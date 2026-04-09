@@ -1,0 +1,131 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "model": "opencode/minimax-m2.5-free",
+  "share": "manual",
+  "autoupdate": true,
+  "default_agent": "project-manager",
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 15000
+  },
+  "permission": {
+    "edit": "allow",
+    "bash": "allow"
+  },
+  "agent": {
+    "project-manager": {
+      "description": "项目经理 - 原型设计流程的总指挥",
+      "mode": "primary",
+      "model": "opencode/minimax-m2.5-free",
+      "color": "primary",
+      "steps": 50,
+      "permission": {
+        "edit": {
+          ".opencode/worker/process.md": "allow",
+          ".opencode/work/**": "allow",
+          "*": "deny"
+        },
+        "bash": "allow",
+        "read": "allow",
+        "task": "allow",
+        "external_directory": {
+          ".opencode/**": "allow",
+          "src/**": "allow",
+          "*": "ask"
+        }
+      }
+    },
+    "product-manager": {
+      "description": "产品经理 - 需求分析和PRD输出",
+      "mode": "subagent",
+      "model": "opencode/minimax-m2.5-free",
+      "color": "info",
+      "steps": 30,
+      "permission": {
+        "edit": {
+          ".opencode/work/**": "allow",
+          "*": "deny"
+        },
+        "bash": "allow",
+        "read": "allow"
+      }
+    },
+    "ui-designer": {
+      "description": "UI设计师 - 整体视觉风格定义",
+      "mode": "subagent",
+      "model": "opencode/minimax-m2.5-free",
+      "color": "accent",
+      "steps": 20,
+      "permission": {
+        "edit": {
+          ".opencode/work/**": "allow",
+          "*": "deny"
+        },
+        "bash": "allow",
+        "read": "allow"
+      }
+    },
+    "frontend-manager": {
+      "description": "前端技术经理 - 负责工程级架构、路由状态基建、占位文件生成与任务拆分",
+      "mode": "subagent",
+      "model": "opencode/minimax-m2.5-free",
+      "color": "success",
+      "steps": 40,
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "external_directory": {
+          "*": "ask"
+        }
+      }
+    },
+    "frontend-component-expert": {
+      "description": "前端组件专家 - 负责跨模块的高阶 UI 组件、基础积木与公共/Mock函数开发",
+      "mode": "subagent",
+      "model": "opencode/minimax-m2.5-free",
+      "color": "success",
+      "steps": 40,
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "external_directory": {
+          "*": "ask"
+        }
+      }
+    },
+    "frontend-module-developer": {
+      "description": "前端模块开发 - 负责具体业务模块的页面逻辑、视图组装与数据交互实现",
+      "mode": "subagent",
+      "model": "opencode/minimax-m2.5-free",
+      "color": "success",
+      "steps": 40,
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "external_directory": {
+          "*": "ask"
+        }
+      }
+    },
+    "qa-engineer": {
+      "description": "测试专家 - 构建验证和功能检查",
+      "mode": "subagent",
+      "model": "opencode/minimax-m2.5-free",
+      "color": "warning",
+      "steps": 20,
+      "permission": {
+        "edit": {
+          ".opencode/work/**": "allow",
+          "*": "deny"
+        },
+        "bash": "allow",
+        "read": "allow"
+      }
+    }
+  }
+}
