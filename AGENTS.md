@@ -112,12 +112,54 @@ src/
 ```
 
 - 每步完成后等待用户确认
-- 产出物写入 `.opencode/work/` 目录
+- 产出物写入 `.opencode/doc/` 目录
 - 进度追踪在 `.opencode/worker/process.md`
-- 流程定义在 `.opencode/worker/workflow.md` (不可变)
+- 流程定义在 `~/.config/opencode/worker/workflow.md` (不可变)
 
 ### 代码生成规则
 
 - 所有生成代码必须遵循本文件规范
 - 组件遵循 Vue 2 SFC 规范 (Options API, scoped 样式)
-- 修改文件前先备份到 `.opencode/work/backups/`
+- 修改文件前先备份到 `.opencode/doc/backups/`
+
+### Agent 执行状态管理
+
+> **🚨 强制约定：每个 Agent 步骤完成后必须创建 `agent_schedule.json` 文件，否则不能进行下一步**
+
+#### agent_schedule.json 格式
+
+```json
+{
+  "taskId": "任务ID",
+  "taskName": "任务名称",
+  "currentStep": "当前步骤ID",
+  "currentAgent": "当前执行Agent",
+  "stepStatus": "completed|in_progress|pending",
+  "artifacts": {
+    "产出物名称": "文件路径"
+  },
+  "completedSteps": [
+    {
+      "stepId": "步骤ID",
+      "agent": "Agent名称",
+      "status": "completed",
+      "artifacts": {},
+      "timestamp": "完成时间"
+    }
+  ],
+  "pendingSteps": [
+    {
+      "stepId": "步骤ID",
+      "agent": "Agent名称",
+      "description": "步骤描述"
+    }
+  ]
+}
+```
+
+#### 执行规则
+
+1. **每个 Agent 完成工作后**，必须在 `.opencode/doc/` 目录下创建 `agent_schedule.json`
+2. **在检查上一步是否完成时**，必须验证 `agent_schedule.json` 是否存在且 `stepStatus` 为 `completed`
+3. 如果 `agent_schedule.json` 不存在或状态不正确，**禁止进入下一步**
+4. `process.md` 和 `agent_schedule.json` 必须保持同步更新

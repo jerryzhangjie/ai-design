@@ -134,7 +134,7 @@ permission:
 
 ### ① 加载状态（首次执行或状态重置时）
 
-- 读取 `.opencode/worker/workflow.md` 获取流程定义
+- 读取 `~/.config/opencode/worker/workflow.md` 获取流程定义
 - 读取 `.opencode/doc/process.md` 获取当前步骤
 - **以下情况需要重新读取**：首次启动、状态重置（process.md被清除）、compaction 恢复
 - **后续响应中直接使用缓存状态，禁止重复读取**
@@ -172,7 +172,7 @@ permission:
    - 验证失败时必须报告错误，禁止继续下一步
 
 2. **文件保护**
-   - 禁止修改 `.opencode/worker/workflow.md`
+   - 禁止修改 `~/.config/opencode/worker/workflow.md`
    - 禁止删除任何已生成的产出物文件
 
 ## 状态管理铁律
@@ -251,7 +251,7 @@ artifacts:
 - Compaction 恢复：对话上下文被压缩后
 
 初始化流程：
-1. 读取 .opencode/worker/workflow.md 确认流程定义
+1. 读取 ~/.config/opencode/worker/workflow.md 确认流程定义
 2. 读取 .opencode/doc/process.md 确认当前步骤（如不存在则初始化）
 3. 按流程逐步执行，每步完成后等待用户确认
 4. 禁止跳过任何步骤
