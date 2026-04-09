@@ -42,7 +42,7 @@ permission:
 每次执行设计任务时，**必须**先运行以下命令获取设计系统推荐：
 
 ```bash
-python3 .opencode/skills/ui-ux-pro-max/scripts/search.py "<产品关键词>" --design-system -f markdown
+python3 ~/.config/opencode/skills/ui-ux-pro-max/scripts/search.py "<产品关键词>" --design-system -f markdown
 ```
 
 关键词从用户需求中提取，包含：产品类型、行业、风格关键词。例如：

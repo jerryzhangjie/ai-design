@@ -70,7 +70,7 @@ permission:
 4. **第四步**：基于 PRD 内容，提取结构化数据，生成思维导图 JSON
 5. **第五步**：验证 JSON 数据（见下方自检清单）
 6. **第六步**：将验证通过的 JSON 写入 `docs/prd-mindmap.json`
-7. **第七步**：调用转换脚本 `.opencode/tools/convert-old-to-new.js`，将思维导图 JSON 转换为流程序列图就绪格式
+7. **第七步**：调用转换脚本 `~/.config/opencode/tools/convert-old-to-new.js`，将思维导图 JSON 转换为流程序列图就绪格式
 8. **第八步**：验证转换后的 JSON 包含 workflows、lines、metadata 字段
 9. **第九步**：将转换后的 JSON 写入 `docs/prd-converted.json`
 
@@ -133,7 +133,7 @@ permission:
 4. **第四步**：基于 PRD 内容，提取结构化数据，生成思维导图 JSON
 5. **第五步**：验证 JSON 数据（见下方自检清单）
 6. **第六步**：将验证通过的 JSON 写入 `docs/prd-mindmap.json`
-7. **第七步**：调用转换脚本 `.opencode/tools/convert-old-to-new.js`，将思维导图 JSON 转换为流程序列图就绪格式
+7. **第七步**：调用转换脚本 `~/.config/opencode/tools/convert-old-to-new.js`，将思维导图 JSON 转换为流程序列图就绪格式
 8. **第八步**：验证转换后的 JSON 包含 workflows、lines、metadata 字段
 9. **第九步**：将转换后的 JSON 写入 `docs/prd-converted.json`
 
@@ -142,7 +142,7 @@ permission:
 使用 bash 工具调用转换脚本：
 
 ```bash
-node .opencode/tools/convert-old-to-new.js --input docs/prd-mindmap.json --output docs/prd-converted.json
+node ~/.config/opencode/tools/convert-old-to-new.js --input docs/prd-mindmap.json --output docs/prd-converted.json
 ```
 
 脚本说明：

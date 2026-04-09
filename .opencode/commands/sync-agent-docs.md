@@ -5,17 +5,17 @@
 ## 使用方式
 
 ```bash
-bash .opencode/skills/agent-doc-sync/scripts/sync.sh
+bash ~/.config/opencode/skills/agent-doc-sync/scripts/sync.sh
 ```
 
 ## 触发条件
 
 - 手动执行此命令
-- 当 `.opencode/agents/*.md` 文件发生变化时
+- 当 `~/.config/opencode/agents/*.md` 文件发生变化时
 
 ## 同步内容
 
-1. 更新 `.opencode/agent-architecture-design/多Agent架构规划.md` 中的角色架构表
+1. 更新 `~/.config/opencode/agent-architecture-design/多Agent架构规划.md` 中的角色架构表
 2. 为每个 Agent 生成/更新对应的设计文档：
    - 项目经理 → 项目经理Agent设计文档.md
    - 产品经理 → 产品经理Agent设计文档.md

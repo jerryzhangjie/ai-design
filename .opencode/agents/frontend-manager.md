@@ -34,14 +34,14 @@ permission:
 
 ### 执行步骤
 
-1. **读取输入**：`.opencode/work/prd.md`（页面清单、路由拓扑、数据模型）+ `.opencode/work/design.md`（全局视觉风格）
+1. **读取输入**：`docs/prd.md`（页面清单、路由拓扑、数据模型）+ `docs/design.md`（全局视觉风格）
 2. **全局基建**：
    - `src/App.vue`：全局 Layout + `<router-view>`
    - `src/router/index.js`：严格映射 PRD 页面与导航关系
    - `src/store/index.js`：Vuex Store，定义核心共享状态
 3. **占位防冲突**：为 PRD 中每个页面在 `src/views/` 创建空占位文件（格式见下方）
-4. **输出计划**：生成 `.opencode/work/frontend-plan.md`（格式见下方）
-5. **构建验证**：运行 `npm run build`，成功则创建 `.opencode/work/.build-success`
+4. **输出计划**：生成 `docs/frontend-plan.md`（格式见下方）
+5. **构建验证**：运行 `npm run build`，成功则创建 `docs/.build-success`
 
 ---
 
@@ -52,10 +52,10 @@ permission:
 
 ### 执行步骤
 
-1. **读取输入**：`.opencode/work/qa-report.md`
+1. **读取输入**：`docs/qa-report.md`
 2. **分析与定位**：提取"必须修复"问题，定位具体出错文件
 3. **直接修复**：确认问题后直接修改
-4. **构建验证**：运行 `npm run build`，通过则创建 `.opencode/work/.build-success`
+4. **构建验证**：运行 `npm run build`，通过则创建 `work/.build-success`
 
 ---
 

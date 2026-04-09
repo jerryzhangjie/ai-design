@@ -31,7 +31,7 @@ permission:
 1. **分析需求**：分析用户需求，识别业务模块，生成完整的 Markdown PRD 文档内容
 2. **写入PRD**：调用 Write 工具，将 Markdown PRD 写入 `docs/prd.md`
 3. **生成JSON**：基于 PRD 内容提取结构化数据，生成思维导图 JSON，调用 Write 工具写入 `docs/prd-mindmap.json`
-4. **转换格式**：调用 Bash 工具运行转换脚本 `node .opencode/tools/convert-old-to-new.js --input docs/prd-mindmap.json --output docs/prd-converted.json`
+4. **转换格式**：调用 Bash 工具运行转换脚本 `node ~/.config/opencode/tools/convert-old-to-new.js --input docs/prd-mindmap.json --output docs/prd-converted.json`
 5. **统一验证**：调用 Glob 工具检查3个文件是否都存在（模式：`docs/prd*`）
 6. **重试处理**：如有文件缺失，重新写入缺失文件（最多重试1次）
 7. **返回报告**：返回完成信息，必须包含已成功创建的3个文件路径列表
@@ -41,7 +41,7 @@ permission:
 使用 bash 工具调用转换脚本：
 
 ```bash
-node .opencode/tools/convert-old-to-new.js --input docs/prd-mindmap.json --output docs/prd-converted.json
+node ~/.config/opencode/tools/convert-old-to-new.js --input docs/prd-mindmap.json --output docs/prd-converted.json
 ```
 
 脚本说明：

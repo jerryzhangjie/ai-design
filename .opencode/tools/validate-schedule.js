@@ -3,7 +3,7 @@
 /**
  * agent_schedule.json 校验脚本
  * 
- * 用法：node .opencode/tools/validate-schedule.js [schedule文件路径]
+ * 用法：node ~/.config/opencode/tools/validate-schedule.js [schedule文件路径]
  * 默认路径：docs/agent_schedule.json
  * 
  * 校验规则：

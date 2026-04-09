@@ -5,13 +5,13 @@ description: Agent 文档同步工具 - 当 Agent 定义变化时自动同步架
 
 # Agent Doc Sync
 
-当 `.opencode/agents/` 目录下的 Agent 定义文件发生变化时，自动同步更新相关架构文档。
+当 `~/.config/opencode/agents/` 目录下的 Agent 定义文件发生变化时，自动同步更新相关架构文档。
 
 ## 触发条件
 
 ### 自动触发
 当以下文件发生变化时自动触发同步：
-- `.opencode/agents/*.md` - 任意 Agent 定义文件
+- `~/.config/opencode/agents/*.md` - 任意 Agent 定义文件
 - `opencode.json` 中的 `agent` 配置段
 - `AGENTS.md` 中的多 Agent 协作章节
 
@@ -21,7 +21,7 @@ description: Agent 文档同步工具 - 当 Agent 定义变化时自动同步架
 ## 同步逻辑
 
 ### 1. 任何 Agent 变化 → 更新总览文档
-更新 `.opencode/agent-architecture-design/多Agent架构规划.md`：
+更新 `~/.config/opencode/agent-architecture-design/多Agent架构规划.md`：
 - 角色架构总览表（名称、职责、模型、Mode、权限）
 - 角色职责边界图
 - 各角色详细定义章节
@@ -40,7 +40,7 @@ description: Agent 文档同步工具 - 当 Agent 定义变化时自动同步架
 | `frontend-module-developer` | `前端模块开发Agent设计文档.md` |
 | `qa-engineer` | `测试专家Agent设计文档.md` |
 
-所有设计文档位于 `.opencode/agent-architecture-design/` 目录。
+所有设计文档位于 `~/.config/opencode/agent-architecture-design/` 目录。
 
 ## 如何使用
 
@@ -48,7 +48,7 @@ description: Agent 文档同步工具 - 当 Agent 定义变化时自动同步架
 
 ```bash
 # 运行同步脚本
-bash .opencode/skills/agent-doc-sync/scripts/sync.sh
+bash ~/.config/opencode/skills/agent-doc-sync/scripts/sync.sh
 ```
 
 ### 方式二：使用命令

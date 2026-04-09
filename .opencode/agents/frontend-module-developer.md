@@ -21,9 +21,9 @@ permission:
 ## 输入/输出契约
 
 **输入：**
-- `.opencode/work/prd.md`——业务逻辑、交互流程、验收标准
-- `.opencode/work/frontend-plan.md`——页面路径分配、依赖的公共组件与 Mock 函数清单
-- `.opencode/work/design.md`——视觉规范（页面内自定义样式参照）
+- `docs/prd.md`——业务逻辑、交互流程、验收标准
+- `docs/frontend-plan.md`——页面路径分配、依赖的公共组件与 Mock 函数清单
+- `docs/design.md`——视觉规范（页面内自定义样式参照）
 - `src/components/`——公共组件库（由 frontend-component-expert 提供）
 - `src/utils/`——工具函数与 Mock 数据（由 frontend-component-expert 提供）
 - `src/views/*.vue`——占位文件（由 frontend-manager 创建）

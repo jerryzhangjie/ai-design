@@ -76,15 +76,15 @@ src/
 
 ### Agent 架构（三段式前端开发）
 
-| Agent | 模式 | 职责 | 文件边界 |
-|-------|------|------|---------|
-| `project-manager` | primary | 流程编排，用户第一接触点 | .opencode/worker/ |
-| `product-manager` | subagent | 需求分析，PRD + 思维导图输出 | .opencode/work/prd* |
-| `ui-designer` | subagent | 视觉风格定义（整体配色/字体/效果） | .opencode/work/design.md |
+| Agent | 模式 | 职责 | 文件边界                                                |
+|-------|------|------|-----------------------------------------------------|
+| `project-manager` | primary | 流程编排，用户第一接触点 | ~/.config/opencode/worker/                          |
+| `product-manager` | subagent | 需求分析，PRD + 思维导图输出 | docs/prd*                                           |
+| `ui-designer` | subagent | 视觉风格定义（整体配色/字体/效果） | docs/design.md                                      |
 | `frontend-manager` | subagent | 工程架构、路由状态基建、任务拆分 | src/router/, src/store/, src/App.vue, src/views/*占位 |
-| `frontend-component-expert` | subagent | 公共UI组件 + 工具函数 + Mock数据 | src/components/, src/utils/ |
-| `frontend-module-developer` | subagent | 具体业务页面实现与逻辑集成 | src/views/ |
-| `qa-engineer` | subagent | 构建验证，代码质量检查 | .opencode/work/qa-report.md |
+| `frontend-component-expert` | subagent | 公共UI组件 + 工具函数 + Mock数据 | src/components/, src/utils/                         |
+| `frontend-module-developer` | subagent | 具体业务页面实现与逻辑集成 | src/views/                                          |
+| `qa-engineer` | subagent | 构建验证，代码质量检查 | docs/qa-report.md                                   |
 
 ### 工作流
 
@@ -108,11 +108,11 @@ src/
 
 - 所有生成代码必须遵循本文件规范
 - 组件遵循 Vue 2 SFC 规范 (Options API, scoped 样式)
-- 修改文件前先备份到 `.opencode/work/backups/`
+- 修改文件前先备份到 `docs/backups/`
 
 ### 流程控制
 
-- 流程定义: `.opencode/worker/workflow.md`（不可变）
+- 流程定义: `~/.config/opencode/worker/workflow.md`（不可变）
 - 运行时状态: `docs/agent_schedule.json`
 - 每步完成后等待用户确认（user_gate 步骤）
-- 产出物写入 `.opencode/work/` 目录
+- 产出物写入 `docs/` 目录

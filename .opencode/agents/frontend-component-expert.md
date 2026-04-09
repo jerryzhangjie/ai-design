@@ -21,8 +21,8 @@ permission:
 ## 输入 / 输出契约
 
 **输入：**
-- `.opencode/work/frontend-plan.md` — 提取"全局 UI 组件"和"工具函数"开发清单
-- `.opencode/work/design.md` — 视觉规范：色值、圆角、阴影、字体
+- `docs/frontend-plan.md` — 提取"全局 UI 组件"和"工具函数"开发清单
+- `docs/design.md` — 视觉规范：色值、圆角、阴影、字体
 - `src/components/` 和 `src/utils/` — 已有文件（防覆盖校验）
 
 **输出：**

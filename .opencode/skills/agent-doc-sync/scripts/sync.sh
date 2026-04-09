@@ -7,8 +7,8 @@ set -e
 # 配置
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
-AGENTS_DIR="$PROJECT_ROOT/.opencode/agents"
-DESIGN_DIR="$PROJECT_ROOT/.opencode/agent-architecture-design"
+AGENTS_DIR="$PROJECT_ROOT/~/.config/opencode/agents"
+DESIGN_DIR="$PROJECT_ROOT/~/.config/opencode/agent-architecture-design"
 TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 # Agent 列表

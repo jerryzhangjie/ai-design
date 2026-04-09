@@ -12,8 +12,9 @@ permission:
   bash: allow
   read: allow
   task: allow
+  question: allow
   external_directory:
-    ".opencode/**": allow
+    "～/.config/opencode/**" : allow
     "src/**": allow
     "*": ask
 ---
@@ -33,7 +34,7 @@ permission:
 
 | 文件 | 职责 | 读写 |
 |------|------|------|
-| `.opencode/worker/workflow.md` | 步骤模板池（静态，不可变） | 只读 |
+| `~/.config/opencode/worker/workflow.md` | 步骤模板池（静态，不可变） | 只读 |
 | `docs/agent_schedule.json` | 运行时状态（动态，plan阶段生成） | 读写 |
 
 ---
@@ -88,7 +89,7 @@ permission:
 **校验方法**：
 
 ```bash
-node .opencode/tools/validate-schedule.js docs/agent_schedule.json
+node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 ```
 
 校验脚本会检查以下规则：
@@ -121,7 +122,7 @@ node .opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 ### ① 加载状态（仅首次）
 
-- 读取 `.opencode/worker/workflow.md` 获取步骤模板池（仅首次）
+- 读取 `~/.config/opencode/worker/workflow.md` 获取步骤模板池（仅首次）
 - 读取 `docs/agent_schedule.json` 获取当前步骤
 - 如 schedule 不存在，根据用户需求创建（事件 E1）
 - 首次启动后缓存状态，后续响应禁止重复读取
@@ -164,7 +165,7 @@ node .opencode/tools/validate-schedule.js docs/agent_schedule.json
 - E6 任务完成后
 
 ```bash
-node .opencode/tools/validate-schedule.js docs/agent_schedule.json
+node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 ```
 
 校验失败则立即修正并重新校验，直到通过。
@@ -201,7 +202,10 @@ node .opencode/tools/validate-schedule.js docs/agent_schedule.json
 [点击查看 PRD 和设计预览](http://localhost:8080/preview-ui)
 
 ```
-请确认后选择操作，严格使用question工具来向用户提问：
+
+输出产出摘要和预览地址后，严格使用question工具来向用户提问。
+问：请确认
+用户选择：
 - [A] 确认，开始生成代码
 - [B] 调整需求
 - [C] 仅调整设计样式
@@ -403,7 +407,7 @@ node .opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 ### 生成执行计划后：展示计划详情
 
-plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户展示完整的执行计划并提出question等待用户确认：
+plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户展示完整的执行计划：
 
 ```
 ## 📋 执行计划
@@ -433,8 +437,9 @@ plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户
 - **流程类型**：{full/design_only/simple_fix/design_review}
 
 ```
-
-**确认是否按照该计划执行**，严格使用question工具来向用户提问：
+输出产出执行计划后，严格使用question工具来向用户提问。
+问：确认是否按照该计划执行
+用户选择：
 [A] 确认计划，开始执行
 [B] 调整需求（重新分析）
 [C] 取消任务
@@ -492,7 +497,7 @@ plan 步骤完成后，进入此步骤时，向用户展示完整的执行计划
 
 ### user_gate_design_prd 确认
 
-进入此步骤时，必须给用户展示完整的产出摘要和预览地址，并提出question等待用户确认：
+进入此步骤时，必须给用户展示完整的产出摘要和预览地址：
 
 ```
 📋 PRD与设计产出确认
@@ -513,7 +518,9 @@ plan 步骤完成后，进入此步骤时，向用户展示完整的执行计划
 [点击查看 PRD 和设计预览](http://localhost:8080/preview-ui)
 ```
 
-**请确认PRD与UI设计**，严格使用question工具来向用户提问：
+输出完整的产出摘要和预览地址后，严格使用question工具来向用户提问。
+问：请确认PRD与UI设计
+用户选择：
 - [A] 确认，开始生成代码
 - [B] 调整需求（回到 plan）
 - [C] 仅调整设计样式（重新调用 ui-designer）
@@ -531,7 +538,7 @@ plan 步骤完成后，进入此步骤时，向用户展示完整的执行计划
 
 **必须做的**：
 1. 读取 `docs/agent_schedule.json`
-2. 读取 `.opencode/worker/workflow.md`（仅首次）
+2. 读取 `~/.config/opencode/worker/workflow.md`（仅首次）
 3. 根据 currentState 判断流程类型
 
 **禁止做的**：
@@ -605,7 +612,7 @@ plan 步骤完成后，进入此步骤时，向用户展示完整的执行计划
 
 ## Task 工具调用规范
 
-- `subagent_type` 必须与 `.opencode/agents/` 中定义的 agent 名称一致
+- `subagent_type` 必须与 `~/.config/opencode/agents/` 中定义的 agent 名称一致
 - prompt 中引用文件路径，让 subagent 通过 read 工具读取
 - 每次调用后验证产出文件是否生成
 - 并行调用时（mode=parallel），分别构造独立的 task 调用
