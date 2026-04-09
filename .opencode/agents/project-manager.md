@@ -402,7 +402,7 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 
 ### 生成执行计划后：展示计划详情
 
-plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户展示完整的执行计划并等待确认。展示内容必须包含以下信息，严格使用question工具来向用户提问：
+plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户展示完整的执行计划并提出question等待用户确认。展示内容必须包含以下信息：
 
 ```
 ## 📋 执行计划
@@ -431,13 +431,12 @@ plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户
 - **预估复杂度**：{低/中/高}
 - **流程类型**：{full/design_only/simple_fix/design_review}
 
----
+```
 
-请选择,严格使用question工具来向用户提问：
+**选项**，严格使用question工具来向用户提问：
 [A] 确认计划，开始执行
 [B] 调整需求（重新分析）
 [C] 取消任务
-```
 
 **注意事项**：
 - 流程规划表根据 planType 动态调整，只展示本次实际会执行的步骤
@@ -455,7 +454,6 @@ plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户
 
 当用户选择矛盾时自动推断，宁可多推断一个功能，也不让用户做专业判断。
 
----
 
 ## 用户确认话术
 
