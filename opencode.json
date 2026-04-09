@@ -1,6 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "instructions": ["AGENTS.md"],
+  "instructions": [
+    "AGENTS.md"
+  ],
   "model": "opencode/minimax-m2.5-free",
   "share": "manual",
   "autoupdate": true,
@@ -46,7 +48,7 @@
       "steps": 30,
       "permission": {
         "edit": {
-          ".opencode/work/**": "allow",
+          ".opencode/doc/**": "allow",
           "*": "deny"
         },
         "bash": "allow",
@@ -61,7 +63,7 @@
       "steps": 20,
       "permission": {
         "edit": {
-          ".opencode/work/**": "allow",
+          ".opencode/doc/**": "allow",
           "*": "deny"
         },
         "bash": "allow",
@@ -75,7 +77,11 @@
       "color": "success",
       "steps": 40,
       "permission": {
-        "edit": "allow",
+        "edit": {
+          ".opencode/doc/**": "allow",
+          "src/**": "allow",
+          "*": "deny"
+        },
         "bash": "allow",
         "read": "allow",
         "external_directory": {
@@ -90,7 +96,11 @@
       "color": "success",
       "steps": 40,
       "permission": {
-        "edit": "allow",
+        "edit": {
+          ".opencode/doc/**": "allow",
+          "src/**": "allow",
+          "*": "deny"
+        },
         "bash": "allow",
         "read": "allow",
         "external_directory": {
@@ -105,7 +115,11 @@
       "color": "success",
       "steps": 40,
       "permission": {
-        "edit": "allow",
+        "edit": {
+          ".opencode/doc/**": "allow",
+          "src/**": "allow",
+          "*": "deny"
+        },
         "bash": "allow",
         "read": "allow",
         "external_directory": {
@@ -121,7 +135,7 @@
       "steps": 20,
       "permission": {
         "edit": {
-          ".opencode/work/**": "allow",
+          ".opencode/doc/**": "allow",
           "*": "deny"
         },
         "bash": "allow",

@@ -150,26 +150,44 @@ node .opencode/tools/validate-schedule.js .opencode/doc/agent_schedule.json
 
 ## 特殊步骤行为
 
-### parallel_design_prd 完成后：输出预览地址
+### parallel_design_prd 完成后：输出产出摘要和预览地址
 
 当 parallel_design_prd 步骤完成后（所有 agent completed + 所有 artifact verified），
-在 E5 更新 schedule 之后，向用户输出预览地址：
+在 E5 更新 schedule 之后，向用户输出产出摘要和预览地址：
 
 ```
-📋 PRD与设计已完成，您可以预览查看：
+📋 PRD与设计已完成！
 
+### 📄 产品需求文档
+| 产出物 | 说明 |
+|--------|------|
+| prd.md | 产品需求文档，包含业务模块、页面清单、数据模型、验收标准 |
+| prd-mindmap.json | 思维导图原始数据，包含页面结构、导航关系、工作流树 |
+| prd-converted.json | 流程序列图数据，包含工作流节点、连线、元数据 |
+
+### 🎨 UI 设计规范
+| 产出物 | 说明 |
+|--------|------|
+| design.md | 整体视觉风格规范，包含配色方案、字体方案、关键效果、间距系统 |
+
+### 🔍 预览地址
 [点击查看 PRD 和设计预览](http://localhost:8080/preview-ui)
 
-请确认后选择操作,严格使用question工具来向用户提问：
+请确认后选择操作，严格使用question工具来向用户提问：
 [A] 确认，开始生成代码
 [B] 调整需求
 [C] 仅调整设计样式
 [D] 返回上一步
 ```
 
-### user_gate_design_prd 确认时：展示预览地址
+**注意事项**：
+- 产出物表格中的文件名必须与 schedule 中 artifacts 的 path 对应
+- 预览地址必须使用 markdown 超链接格式
+- 产出物说明应简洁，一句话概括每个文件的内容
 
-当进入 user_gate_design_prd 步骤时，同样展示预览地址供用户参考。
+### user_gate_design_prd 确认时：展示产出摘要和预览地址
+
+当进入 user_gate_design_prd 步骤时，根据下方「user_gate_design_prd 确认」模板展示完整产出摘要和预览地址。
 
 ### serve 步骤：输出项目运行地址
 
@@ -429,15 +447,41 @@ plan 步骤完成后，进入此步骤时，向用户展示完整的执行计划
 
 ### user_gate_design_prd 确认
 
-**展示**：PRD 摘要、设计摘要、产出文件路径
+进入此步骤时，向用户展示完整的产出摘要和预览地址：
 
-**预览地址**：[http://localhost:8080/preview-ui](http://localhost:8080/preview-ui)
+**展示内容**（必须包含）：
+1. **产品需求文档摘要**：列出 PRD 生成的3个文件及其说明
+2. **UI 设计规范摘要**：列出 design.md 及其说明
+3. **预览地址**：使用 markdown 超链接格式
 
-**选项**,严格使用question工具来向用户提问：
+模板如下：
+
+```
+📋 PRD与设计产出确认
+
+### 📄 产品需求文档
+| 产出物 | 说明 |
+|--------|------|
+| prd.md | 产品需求文档，包含业务模块、页面清单、数据模型、验收标准 |
+| prd-mindmap.json | 思维导图原始数据，包含页面结构、导航关系、工作流树 |
+| prd-converted.json | 流程序列图数据，包含工作流节点、连线、元数据 |
+
+### 🎨 UI 设计规范
+| 产出物 | 说明 |
+|--------|------|
+| design.md | 整体视觉风格规范，包含配色方案、字体方案、关键效果、间距系统 |
+
+### 🔍 预览地址
+[点击查看 PRD 和设计预览](http://localhost:8080/preview-ui)
+```
+
+**选项**，严格使用question工具来向用户提问：
 - [A] 确认，开始生成代码
 - [B] 调整需求（回到 plan）
 - [C] 仅调整设计样式（重新调用 ui-designer）
 - [D] 返回上一步（重新执行 parallel_design_prd）
+
+**注意**：展示产出物时必须使用表格列出每个文件及说明，预览地址必须使用 markdown 超链接格式
 
 ---
 
