@@ -172,9 +172,10 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 ### ① 加载状态（仅首次）
 
+- 通过 bash 执行 `mkdir -p docs` 确保输出目录存在（幂等操作，已存在不会报错）
 - 读取 `~/.config/opencode/worker/workflow.md` 获取步骤模板池（仅首次）
 - 读取 `docs/agent_schedule.json` 获取当前步骤
-- 如 schedule 不存在，根据用户需求创建（事件 E1）
+- **如 schedule 不存在，必须立即触发 E1 初始化，在同一轮响应中写入文件，不得延迟到下一轮**
 - 首次启动后缓存状态，后续响应禁止重复读取
 
 ### ② 获取时间（步骤级复用）
@@ -253,13 +254,14 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 ```
 
-输出产出摘要和预览地址后，严格使用question工具来向用户提问。
-问：请确认
+输出产出摘要和预览地址后，立即向用户进行询问。
+
+询问问题：是否确认当前设计方案.**严格使用question工具来询问**
 用户选择：
-- [A] 确认，开始生成代码
-- [B] 调整需求
-- [C] 仅调整设计样式
-- [D] 返回上一步
+[A] 确认，开始生成代码
+[B] 调整需求
+[C] 仅调整设计样式
+[D] 返回上一步
 
 
 **注意事项**：
@@ -303,11 +305,18 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 **触发**：用户提交需求，需求明确
 
-**修改**：创建整个文件，从 workflow.md 步骤模板池选取步骤，根据 planType 裁剪，所有 step.status 初始化为 pending（第一个步骤 plan 设为 in_progress）。
+**前置操作**：通过 bash 执行 `mkdir -p docs` 确保输出目录存在。
+
+**修改**：在同一轮响应中完整写入 `docs/agent_schedule.json`，从 workflow.md 步骤模板池选取步骤，根据 planType 裁剪，所有 step.status 初始化为 pending（第一个步骤 plan 设为 in_progress）。
+
+**关键要求**：
+- E1 必须在当前轮响应中生成完整的 JSON 文件并写入磁盘，不得拖延到下一轮
+- 先获取时间（bash date），再构建 JSON，再写入文件，再校验
+- 写入后必须立即运行校验脚本验证格式正确
 
 **时间字段**：lastUpdate 使用 bash 获取的当前时间。plan 步骤的 startedAt 使用同一时间。
 
-**校验**：创建后校验 1 次。
+**校验**：创建后校验 1 次。写入后如果校验失败，立即修正并重新校验。
 
 ### E2 步骤启动（合并步骤开始 + agent 分发）
 
@@ -490,8 +499,9 @@ plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户
 - **流程类型**：{full/design_only/simple_fix/design_review}
 
 ```
-输出产出执行计划后，严格使用question工具来向用户提问。
-问：确认是否按照该计划执行
+输出产出执行计划后，立即向用户进行询问。
+
+询问问题：确认是否按照该计划执行.**严格使用question工具来询问**
 用户选择：
 [A] 确认计划，开始执行
 [B] 调整需求（重新分析）
@@ -573,13 +583,14 @@ plan 步骤完成后，进入此步骤时，必须向用户展示完整的执行
 [点击查看 PRD 和设计预览](http://localhost:8080/preview-ui)
 ```
 
-输出完整的产出摘要和预览地址后，严格使用question工具来向用户提问。
-问：请确认PRD与UI设计
+输出完整的产出摘要和预览地址后，立即向用户进行询问。
+
+询问问题：请确认PRD与UI设计.**严格使用question工具来询问**
 用户选择：
-- [A] 确认，开始生成代码
-- [B] 调整需求（回到 plan）
-- [C] 仅调整设计样式（重新调用 ui-designer）
-- [D] 返回上一步（重新执行 parallel_design_prd）
+[A] 确认，开始生成代码
+[B] 调整需求（回到 plan）
+[C] 仅调整设计样式（重新调用 ui-designer）
+[D] 返回上一步（重新执行 parallel_design_prd）
 
 **注意**：展示产出物时必须使用表格列出每个文件及说明，预览地址必须使用 markdown 超链接格式
 
