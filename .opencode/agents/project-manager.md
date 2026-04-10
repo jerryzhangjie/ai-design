@@ -175,7 +175,7 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 - 通过 bash 执行 `mkdir -p docs` 确保输出目录存在（幂等操作，已存在不会报错）
 - 读取 `~/.config/opencode/worker/workflow.md` 获取步骤模板池（仅首次）
 - 读取 `docs/agent_schedule.json` 获取当前步骤
-- **如 schedule 不存在，必须立即触发 E1 初始化，在同一轮响应中写入文件，不得延迟到下一轮**
+- **如 schedule 不存在，必须立即触发 E1 初始化，在同一轮响应中调用 edit 工具写入文件，不得延迟到下一轮**
 - 首次启动后缓存状态，后续响应禁止重复读取
 
 ### ② 获取时间（步骤级复用）
@@ -190,16 +190,20 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 | mode | 行为 |
 |------|------|
-| `primary` | 项目经理自己执行；如有 post_action 则在步骤完成后执行 |
+| `primary` | 项目经理自己执行；执行完逻辑后触发 E3 收尾写入 schedule；如有 post_action 则在步骤完成后执行 |
 | `user_gate` | 展示产出摘要+预览地址，等待用户选择，E4 |
-| `parallel` | 并行 dispatch 所有 agents，等全部完成后 E3 |
+| `parallel` | **同时** dispatch 所有 agents（必须在同一轮响应中发出所有 task 调用），等全部完成后 E3 |
 | `single` | dispatch agents[0]，等完成后 E3 |
 | `terminal` | 展示最终结果给用户 |
 
+**⚠️ parallel 模式关键规则**：parallel 步骤的所有 agent 的 task 调用必须**在同一轮响应中同时发出**。
+正确做法：`task(product-manager)` + `task(ui-designer)` 在同一轮响应中并行发出
+错误做法：先调用 `task(product-manager)` → 等返回 → 再调用 `task(ui-designer)` ← **绝对禁止**
+
 **并行调用指导**（减少工具调用轮次）：
-- parallel 模式：`task(agent1)` 和 `task(agent2)` 在同一轮响应中并行发出
-- parallel 模式：E2 步骤启动时，一次性 edit 更新步骤状态和所有 agent 状态，不再分多次
-- 需要获取时间时：`bash date` 和 `read`（如需验证产出物）可并行调用
+- **parallel 模式的 task 调用必须在同一轮响应中同时发出**：例如 parallel_design_prd 步骤，task(product-manager) 和 task(ui-designer) 必须在同一轮响应中一起调用，绝对禁止先调一个、等返回后再调另一个
+- E2 步骤启动时：一次性 edit 更新步骤状态和所有 agent 状态，不再分多次
+- 需要获取时间时：`bash date` 和文件读取可并行调用
 - E3 步骤收尾时：一次性 edit 更新所有 agent 完成、所有 artifact 验证、步骤完成
 
 前端开发三步骤的依赖关系：
@@ -232,44 +236,37 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 ### parallel_design_prd 完成后：输出产出摘要和预览地址
 
 当 parallel_design_prd 步骤完成后（所有 agent completed + 所有 artifact verified），
-在 E3（步骤收尾）之后，向用户输出产出摘要和预览地址，产出摘要和预览地址直接输出，具体内容无需在question中展示,输出模板：
+在 E3（步骤收尾）之后，**只向用户输出结果，不询问确认**（询问确认是 user_gate_design_prd 的职责）：
 
-```
 📋 PRD与设计已完成！
 
-### 📄 产品需求文档
+ 📄 产品需求文档
 | 产出物 | 说明 |
 |--------|------|
 | prd.md | 产品需求文档，包含业务模块、页面清单、数据模型、验收标准 |
 | prd-mindmap.json | 思维导图原始数据，包含页面结构、导航关系、工作流树 |
 | prd-converted.json | 流程序列图数据，包含工作流节点、连线、元数据 |
 
-### 🎨 UI 设计规范
+ 🎨 UI 设计规范
 | 产出物 | 说明 |
 |--------|------|
 | design.md | 整体视觉风格规范，包含配色方案、字体方案、关键效果、间距系统 |
 
-### 🔍 预览地址
-请前往查看，[点击查看 PRD 和设计预览](http://localhost:8080/ai-design/#/flowchart/)
+ 🔍 预览地址
+[点击查看 PRD 和设计预览](http://localhost:8080/ai-design/#/flowchart/)
 
-```
+**注意**：此步骤只输出结果摘要和预览地址，不询问用户确认。用户确认将在下一步 user_gate_design_prd 中进行。
+
+### user_gate_design_prd 确认时：询问用户确认
+
+当进入 user_gate_design_prd 步骤时，产出摘要和预览地址已在 parallel_design_prd 完成时输出，此处只需使用 question 工具询问用户确认：
 
 询问问题：是否确认当前设计方案.**严格使用question工具来询问，设计方案无需在question里展示**
 用户选择：
 [A] 确认，开始生成代码
-[B] 调整需求
-[C] 仅调整设计样式
-[D] 返回上一步
-
-
-**注意事项**：
-- 产出物表格中的文件名必须与 schedule 中 artifacts 的 path 对应
-- 预览地址必须使用 markdown 超链接格式
-- 产出物说明应简洁，一句话概括每个文件的内容
-
-### user_gate_design_prd 确认时：展示产出摘要和预览地址
-
-当进入 user_gate_design_prd 步骤时，根据下方「user_gate_design_prd 确认」模板展示完整产出摘要和预览地址。
+[B] 调整需求（回到 plan）
+[C] 仅调整设计样式（重新调用 ui-designer）
+[D] 返回上一步（重新执行 parallel_design_prd）
 
 ### serve 步骤：输出项目运行地址
 
@@ -305,18 +302,19 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 **前置操作**：通过 bash 执行 `mkdir -p docs` 确保输出目录存在。
 
-**修改**：在同一轮响应中完整写入 `docs/agent_schedule.json`，从 workflow.md 步骤模板池选取步骤，根据 planType 裁剪，所有 step.status 初始化为 pending（第一个步骤 plan 设为 in_progress）。
+**修改**：在同一轮响应中完整写入 `docs/agent_schedule.json`，从 workflow.md 步骤模板池选取步骤，根据 planType 裁剪，所有 step.status 初始化为 pending（第一个步骤 plan 设为 in_progress）。**使用 edit 工具将 JSON 内容写入文件，不要只在内存中构建 JSON 而不写入磁盘。**
 
 **关键要求**：
 - E1 必须在当前轮响应中生成完整的 JSON 文件并写入磁盘，不得拖延到下一轮
-- 先获取时间（bash date），再构建 JSON，再写入文件，再校验
+- 先获取时间（bash date），再构建 JSON，再调用 edit 工具写入文件，再校验
+- **写入操作必须使用 edit 工具将 JSON 内容写入 docs/agent_schedule.json 文件**
 - 写入后必须立即运行校验脚本验证格式正确
 
 **时间字段**：lastUpdate 使用 bash 获取的当前时间。plan 步骤的 startedAt 使用同一时间。
 
 **校验**：创建后校验 1 次。写入后如果校验失败，立即修正并重新校验。
 
-### E2 步骤启动（合并步骤开始 + agent 分发）
+### E2 步骤启动（合并步骤开始 + agent 分发）- 必须写入 schedule
 
 **触发**：开始执行某个步骤
 
@@ -334,20 +332,24 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 **时间复用**：同一步骤启动中所有 now 字段使用同一个时间值，只获取一次时间。
 
-**dispatch 策略**：
-- mode=parallel：在同一轮响应中并行调用所有 agent 的 task 工具
+**dispatch 策略（必须严格遵守）**：
+- **mode=parallel**：**必须在同一轮响应中同时发出所有 agent 的 task 调用**，禁止逐个串行调用。例如 parallel_design_prd 步骤有 product-manager 和 ui-designer 两个 agent，必须在同一轮响应中同时调用 task(product-manager) 和 task(ui-designer)
 - mode=single：调用 agents[0] 的 task 工具
 - mode=primary：不调用 task，项目经理自己执行
 - mode=user_gate：不调用 task，展示选项
 - mode=terminal：不调用 task，展示结果
 
-**不校验**：此事件为中间状态变更，不做校验。
+**⚠️ 重要提醒**：在执行上述 dispatch 之前，必须先用 edit 工具将 schedule 中的相关字段写入文件（如 currentStep、步骤状态、agent 状态等），然后才能调用 task 分发 agent。禁止在未写入 schedule 的情况下直接调用 task。
 
-### E3 步骤收尾（合并 agent 完成 + 步骤完成）
+### E3 步骤收尾（合并 agent 完成 + 步骤完成）- 必须写入 schedule
+
+**⚠️ 重要提醒**：在执行步骤收尾之前，必须先用 edit 工具将 schedule 中的相关字段写入文件（如 agent 完成状态、artifact 验证状态、步骤完成状态、currentStep 推进等），然后才能进行后续操作。禁止在未写入 schedule 的情况下直接进行下一步骤。
 
 **触发**：当前步骤所有 agents 已返回 + 所有产出物验证通过
 
-**前置验证**：逐个检查当前步骤所有产出物文件是否存在且非空。全部通过才进入此事件，任一失败则不进入，报告错误并重试对应 agent。
+**特殊说明**：对于 primary 模式的步骤（如 plan），没有 agents 和 artifacts，E3 直接由项目经理在执行完步骤逻辑后触发，不需要等待 subagent 返回。
+
+**前置验证**：逐个检查当前步骤所有产出物文件是否存在且非空。全部通过才进入此事件，任一失败则不进入，报告错误并重试对应 agent。对于没有 artifacts 的步骤（如 plan），跳过前置验证直接进入收尾。
 
 **修改**（一次性完成，不分多次 edit）：
 - 所有 agents 的 `status` → "completed"
@@ -467,9 +469,12 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 ### 生成执行计划后：展示计划详情
 
-plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户输出完整的执行计划，执行计划直接输出，具体内容无需在question中展示：
+plan 步骤完成后（E1+E2 初始化 + E3 步骤收尾），**必须先写入 agent_schedule.json（将 plan 步骤标记为 completed，currentStep 指向 user_gate_plan）**，然后进入 user_gate_plan 展示计划。
 
-```
+写入 schedule 后，**分两步操作，顺序不可颠倒**：
+
+**第一步：直接向用户输出完整的执行计划（作为普通文本回复，不使用 question 工具）：**
+
 ## 📋 执行计划
 
 ### 需求概要
@@ -496,9 +501,7 @@ plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户
 - **预估复杂度**：{低/中/高}
 - **流程类型**：{full/design_only/simple_fix/design_review}
 
-```
-
-询问问题：确认是否按照该计划执行.**严格使用question工具来询问，执行计划无需在question里展示**
+**第二步：在输出完以上内容后，使用 question 工具询问用户确认，question 中只包含选项，不重复上面的内容：**
 用户选择：
 [A] 确认计划，开始执行
 [B] 调整需求（重新分析）
@@ -508,7 +511,7 @@ plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户
 - 流程规划表根据 planType 动态调整，只展示本次实际会执行的步骤
 - full 类型展示全部9步，design_only 只展示前4步，simple_fix 跳过设计步骤
 - 参与角色使用中文名称而非 agent 英文名称，用户更易理解
-- 必须使用 question 工具让用户选择，不要用纯文字让用户回复文字
+- **先输出文本内容，再调用 question 工具，不可颠倒顺序，不可跳过文本输出**
 
 ### 需求不明确
 
@@ -541,21 +544,21 @@ plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户
 
 ### user_gate_plan 确认
 
-plan 步骤完成后，进入此步骤时，必须向用户展示完整的执行计划：
-```
+plan 步骤完成后，进入此步骤时，**分两步操作，顺序不可颠倒**：
+
+**第一步：直接向用户输出完整的执行计划（作为普通文本回复，不使用 question 工具）：**
+
 **展示内容**（必须包含）：
 1. **需求概要**：项目名称、核心目标、涉及页面
 2. **流程规划表**：步骤编号、内容、参与角色（中文名）、产出物
 3. **预计工作量**：页面数量、预估复杂度、流程类型
-4. **选项**：A确认/B调整/C取消
-```
 
-严格使用question工具来向用户提问。
-问：是否按照该计划执行：
-用户选择：
+**第二步：在输出完以上内容后，使用 question 工具询问用户确认，question 中只包含选项：**
 - 选项 A：确认计划，开始执行 → currentStep 指向下一步（E4逻辑）
 - 选项 B：调整需求（重新分析） → currentStep 指向 plan，重置状态
 - 选项 C：取消任务 → currentState = cancelled
+
+**注意**：先输出文本内容，再调用 question 工具，不可颠倒顺序，不可跳过文本输出
 
 
 ## 启动与交互规则
