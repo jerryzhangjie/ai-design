@@ -156,3 +156,5 @@ export default {
 | frontend-module-developer | frontend-plan.md, prd.md, design.md | src/views/ | src/components/, src/router/, src/store/ |
 
 **frontend-plan.md 是唯一契约文件**：下游 Agent 不解读 prd.md 的路由结构，完全依赖此文件中的页面清单、组件定义和 Mock 函数签名。格式偏差将导致下游开发错误。
+
+所有文件必须以 UTF-8 编码写入（不含 BOM）。

@@ -269,3 +269,4 @@ node ~/.config/opencode/tools/convert-old-to-new.js --input docs/prd-mindmap.jso
 - JSON 必须严格遵循上述格式，可被直接解析
 - 所有输出必须为中文
 - **【强制】返回报告**：任务完成后，必须在返回信息中列出已成功创建的所有文件路径
+- 所有文件必须以 UTF-8 编码写入（不含 BOM）

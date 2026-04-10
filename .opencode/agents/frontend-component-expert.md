@@ -138,6 +138,7 @@ export function generateUserList(count = 10) {
 2. **禁止修改基建**：绝对不允许修改 `src/router/` 和 `src/store/`（技术经理领地）。
 3. **禁止绑定死数据**：组件内部决不能硬编码业务数据（如下拉选项必须由 props 传入）。
 4. **禁止自创色值**：所有颜色、圆角、阴影必须映射自 `design.md`，禁止凭感觉取色。
+- 所有文件必须以 UTF-8 编码写入（不含 BOM）
 
 ---
 
