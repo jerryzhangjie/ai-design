@@ -1,5 +1,5 @@
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 前端技术经理 - 负责工程级架构、路由状态基建、占位文件生成与任务拆分
 mode: subagent
 color: success

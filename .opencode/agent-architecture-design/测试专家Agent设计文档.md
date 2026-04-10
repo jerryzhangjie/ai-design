@@ -7,7 +7,7 @@
 - **Mode**: `subagent`
 - **Steps**: 10（允许最多 10 次 agentic 迭代）
 - **Color**: `warning`
-- **模型**: `opencode/minimax-m2.5-free`
+- **模型**: `opencode/big-pickle`
 
 ---
 
@@ -98,7 +98,7 @@ permission:
 
 ```markdown
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 测试专家 - 构建验证和功能检查
 mode: subagent
 color: warning
@@ -259,7 +259,7 @@ permission:
 {
   "agent": {
     "qa-engineer": {
-      "model": "opencode/minimax-m2.5-free",
+      "model": "opencode/big-pickle",
       "description": "测试专家 - 构建验证和功能检查",
       "mode": "subagent",
       "color": "warning",

@@ -7,7 +7,7 @@
 - **Mode**: `primary`
 - **Steps**: 30（允许最多 30 次 agentic 迭代）
 - **Color**: `primary`
-- **模型**: `opencode/minimax-m2.5-free`
+- **模型**: `opencode/big-pickle`
 
 ---
 
@@ -101,7 +101,7 @@ permission:
 
 ```markdown
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 项目经理 - 原型设计流程的总指挥
 mode: primary
 color: primary
@@ -596,7 +596,7 @@ qa_fix_count: 1
 {
   "agent": {
     "project-manager": {
-      "model": "opencode/minimax-m2.5-free",
+      "model": "opencode/big-pickle",
       "description": "项目经理 - 原型设计流程的总指挥",
       "mode": "primary",
       "color": "primary",

@@ -7,7 +7,7 @@
 - **Mode**: `subagent`
 
 - **Color**: `accent`
-- **模型**: `opencode/minimax-m2.5-free`
+- **模型**: `opencode/big-pickle`
 
 ---
 
@@ -84,7 +84,7 @@ permission:
 
 ```markdown
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: UI设计师 - 整体视觉风格定义
 mode: subagent
 color: accent
@@ -264,7 +264,7 @@ design.md 格式如下：
 {
   "agent": {
     "ui-designer": {
-      "model": "opencode/minimax-m2.5-free",
+      "model": "opencode/big-pickle",
       "description": "UI设计师 - 整体视觉风格定义",
       "mode": "subagent",
       "color": "accent"

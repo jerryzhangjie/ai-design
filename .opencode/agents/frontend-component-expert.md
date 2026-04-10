@@ -1,5 +1,5 @@
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 前端组件专家 - 负责跨模块的高阶 UI 组件、基础积木与公共/Mock函数开发
 mode: subagent
 color: success

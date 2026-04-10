@@ -1,5 +1,5 @@
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 项目经理 - 原型设计流程的总指挥
 mode: primary
 color: primary

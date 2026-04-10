@@ -1,5 +1,5 @@
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 测试专家 - 构建验证和功能检查
 mode: subagent
 color: warning

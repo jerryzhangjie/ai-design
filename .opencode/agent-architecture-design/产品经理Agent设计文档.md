@@ -7,7 +7,7 @@
 - **Mode**: `subagent`
 
 - **Color**: `info`
-- **模型**: `opencode/minimax-m2.5-free`
+- **模型**: `opencode/big-pickle`
 
 ---
 
@@ -99,7 +99,7 @@ permission:
 
 ```markdown
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 产品经理 - 需求分析和PRD输出
 mode: subagent
 color: info
@@ -370,7 +370,7 @@ node ~/.config/opencode/tools/convert-old-to-new.js --input docs/prd-mindmap.jso
 {
   "agent": {
     "product-manager": {
-      "model": "opencode/minimax-m2.5-free",
+      "model": "opencode/big-pickle",
       "description": "产品经理 - 需求分析和PRD输出",
       "mode": "subagent",
       "color": "info"

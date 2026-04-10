@@ -1,7 +1,7 @@
 ---
 description: 定期更新 OpenCode 深度解析文档（爬取官网+源码+整合输出）
 agent: build
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 ---
 
 执行 OpenCode 深度解析文档的定期更新任务。

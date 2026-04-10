@@ -1,5 +1,5 @@
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: UI设计师 - 整体视觉风格定义
 mode: subagent
 steps: 20

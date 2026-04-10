@@ -7,7 +7,7 @@
 - **Mode**: `subagent`
 - **Steps**: 30（允许最多 30 次 agentic 迭代）
 - **Color**: `success`
-- **模型**: `opencode/minimax-m2.5-free`
+- **模型**: `opencode/big-pickle`
 
 ---
 
@@ -101,7 +101,7 @@ permission:
 
 ```markdown
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 前端专家 - Vue 2 组件开发和代码实现
 mode: subagent
 color: success
@@ -202,7 +202,7 @@ permission:
 {
   "agent": {
     "frontend-expert": {
-      "model": "opencode/minimax-m2.5-free",
+      "model": "opencode/big-pickle",
       "description": "前端专家 - Vue 2 组件开发和代码实现",
       "mode": "subagent",
       "color": "success",

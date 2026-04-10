@@ -1,5 +1,5 @@
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 产品经理 - 需求分析和PRD输出
 mode: subagent
 steps: 30
