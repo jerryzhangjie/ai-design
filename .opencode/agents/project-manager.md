@@ -14,7 +14,7 @@ permission:
   task: allow
   question: allow
   external_directory:
-    "～/.config/opencode/**" : allow
+    "~/.config/opencode/**" : allow
     "src/**": allow
     "*": allow
 ---
