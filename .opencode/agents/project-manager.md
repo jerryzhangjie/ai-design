@@ -253,7 +253,7 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 | design.md | 整体视觉风格规范，包含配色方案、字体方案、关键效果、间距系统 |
 
  🔍 预览地址
-[点击查看 PRD 和设计预览](http://localhost:8080/ai-design/#/flowchart/)
+http://localhost:8080/ai-design/#/flowchart/
 
 **注意**：此步骤只输出结果摘要和预览地址，不询问用户确认。用户确认将在下一步 user_gate_design_prd 中进行。
 
