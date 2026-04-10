@@ -232,7 +232,7 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 ### parallel_design_prd 完成后：输出产出摘要和预览地址
 
 当 parallel_design_prd 步骤完成后（所有 agent completed + 所有 artifact verified），
-在 E3（步骤收尾）之后，向用户输出产出摘要和预览地址，输出模板：
+在 E3（步骤收尾）之后，向用户输出产出摘要和预览地址，产出摘要和预览地址直接输出，具体内容无需在question中展示,输出模板：
 
 ```
 📋 PRD与设计已完成！
@@ -254,9 +254,7 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 ```
 
-输出产出摘要和预览地址后，立即向用户进行询问。
-
-询问问题：是否确认当前设计方案.**严格使用question工具来询问**
+询问问题：是否确认当前设计方案.**严格使用question工具来询问，设计方案无需在question里展示**
 用户选择：
 [A] 确认，开始生成代码
 [B] 调整需求
@@ -469,7 +467,7 @@ node ~/.config/opencode/tools/validate-schedule.js docs/agent_schedule.json
 
 ### 生成执行计划后：展示计划详情
 
-plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户展示完整的执行计划：
+plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户输出完整的执行计划，执行计划直接输出，具体内容无需在question中展示：
 
 ```
 ## 📋 执行计划
@@ -499,9 +497,8 @@ plan 步骤完成后（E1+E2），进入 user_gate_plan 之前，必须向用户
 - **流程类型**：{full/design_only/simple_fix/design_review}
 
 ```
-输出产出执行计划后，立即向用户进行询问。
 
-询问问题：确认是否按照该计划执行.**严格使用question工具来询问**
+询问问题：确认是否按照该计划执行.**严格使用question工具来询问，执行计划无需在question里展示**
 用户选择：
 [A] 确认计划，开始执行
 [B] 调整需求（重新分析）
@@ -553,48 +550,13 @@ plan 步骤完成后，进入此步骤时，必须向用户展示完整的执行
 4. **选项**：A确认/B调整/C取消
 ```
 
-输出完整的产出摘要和预览地址后，严格使用question工具来向用户提问。
+严格使用question工具来向用户提问。
 问：是否按照该计划执行：
 用户选择：
 - 选项 A：确认计划，开始执行 → currentStep 指向下一步（E4逻辑）
 - 选项 B：调整需求（重新分析） → currentStep 指向 plan，重置状态
 - 选项 C：取消任务 → currentState = cancelled
 
-### user_gate_design_prd 确认
-
-进入此步骤时，必须给用户展示完整的产出摘要和预览地址：
-
-```
-📋 PRD与设计产出确认
-
-### 📄 产品需求文档
-| 产出物 | 说明 |
-|--------|------|
-| prd.md | 产品需求文档，包含业务模块、页面清单、数据模型、验收标准 |
-| prd-mindmap.json | 思维导图原始数据，包含页面结构、导航关系、工作流树 |
-| prd-converted.json | 流程序列图数据，包含工作流节点、连线、元数据 |
-
-### 🎨 UI 设计规范
-| 产出物 | 说明 |
-|--------|------|
-| design.md | 整体视觉风格规范，包含配色方案、字体方案、关键效果、间距系统 |
-
-### 🔍 预览地址
-[点击查看 PRD 和设计预览](http://localhost:8080/preview-ui)
-```
-
-输出完整的产出摘要和预览地址后，立即向用户进行询问。
-
-询问问题：请确认PRD与UI设计.**严格使用question工具来询问**
-用户选择：
-[A] 确认，开始生成代码
-[B] 调整需求（回到 plan）
-[C] 仅调整设计样式（重新调用 ui-designer）
-[D] 返回上一步（重新执行 parallel_design_prd）
-
-**注意**：展示产出物时必须使用表格列出每个文件及说明，预览地址必须使用 markdown 超链接格式
-
----
 
 ## 启动与交互规则
 
