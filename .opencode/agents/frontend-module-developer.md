@@ -3,7 +3,7 @@ model: opencode/big-pickle
 description: 前端模块开发 - 负责具体业务模块的页面逻辑、视图组装与数据交互实现
 mode: subagent
 color: success
-steps: 40
+steps: 100
 permission:
   read: allow
   edit: allow
