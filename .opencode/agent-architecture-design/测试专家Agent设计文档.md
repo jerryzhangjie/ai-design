@@ -7,7 +7,7 @@
 - **Mode**: `subagent`
 - **Steps**: 10（允许最多 10 次 agentic 迭代）
 - **Color**: `warning`
-- **模型**: `opencode/minimax-m2.5-free`
+- **模型**: `opencode/big-pickle`
 
 ---
 
@@ -27,7 +27,7 @@
 ```yaml
 permission:
   edit:
-    ".opencode/doc/**": allow
+    "docs/**": allow
     "*": deny
   read: allow
   bash: allow
@@ -48,13 +48,13 @@ permission:
 | 输入 | 来源 | 格式 |
 |------|------|------|
 | 任务指令 | 项目经理 | prompt 参数 |
-| 上下文文件 | .opencode/doc/ | Markdown |
+| 上下文文件 | docs/ | Markdown |
 
 ### 4.2 输出
 
 | 输出 | 目标 | 格式 |
 |------|------|------|
-| 工作产出 | .opencode/doc/ | Markdown |
+| 工作产出 | docs/ | Markdown |
 
 ---
 
@@ -67,7 +67,7 @@ permission:
 4. 分析构建错误（如有）
 5. 功能性代码检查（语法、跳转、交互）
 6. 关键规范检查（name、scoped）
-7. 生成测试报告到 `.opencode/doc/qa-report.md`
+7. 生成测试报告到 `docs/qa-report.md`
 
 **耗时控制**：单次测试目标 < 30 秒（如构建已通过，仅需几秒）
 
@@ -98,14 +98,14 @@ permission:
 
 ```markdown
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 测试专家 - 构建验证和功能检查
 mode: subagent
 color: warning
 steps: 10
 permission:
   edit:
-    ".opencode/doc/**": allow
+    "docs/**": allow
     "*": deny
   read: allow
   bash: allow
@@ -128,7 +128,7 @@ permission:
 4. 分析构建错误（如有）
 5. 功能性代码检查（语法、跳转、交互）
 6. 关键规范检查（name、scoped）
-7. 生成测试报告到 `.opencode/doc/qa-report.md`
+7. 生成测试报告到 `docs/qa-report.md`
 
 **耗时控制**：单次测试目标 < 30 秒（如构建已通过，仅需几秒）
 
@@ -259,7 +259,7 @@ permission:
 {
   "agent": {
     "qa-engineer": {
-      "model": "opencode/minimax-m2.5-free",
+      "model": "opencode/big-pickle",
       "description": "测试专家 - 构建验证和功能检查",
       "mode": "subagent",
       "color": "warning",

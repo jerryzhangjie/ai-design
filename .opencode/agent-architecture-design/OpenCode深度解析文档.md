@@ -201,7 +201,7 @@ opencode/
 │   ├── workflows/              # CI/CD 流水线 (15+ workflows)
 │   ├── ISSUE_TEMPLATE/         # Issue 模板
 │   └── actions/                # 自定义 Actions
-├── .opencode/                  # OpenCode 自身配置
+├── ~/.config/opencode/                  # OpenCode 自身配置
 │   ├── agent/                  # 内部 Agent 定义 (triage, translator, duplicate-pr)
 │   ├── command/                # 内部命令 (commit, changelog, issues 等)
 │   ├── glossary/               # 多语言术语表 (16 种语言)
@@ -694,7 +694,7 @@ OpenCode 提供四层扩展能力：
 |------|--------|-------------|-----|---------|
 | **定义方式** | SKILL.md 文件 | TypeScript/JS 函数 | 本地/远程服务器 | TypeScript/JS 模块 |
 | **能力** | 指令注入 | 任意代码执行 | 外部服务集成 | 全系统访问 |
-| **加载位置** | `.opencode/skills/` | `.opencode/tools/` | 配置定义 | `.opencode/plugins/` |
+| **加载位置** | `~/.config/opencode/skills/` | `~/.config/opencode/tools/` | 配置定义 | `~/.config/opencode/plugins/` |
 | **npm 支持** | ❌ | ❌ | ✅ | ✅ |
 | **权限控制** | ✅ | ✅ | ✅ | ✅ |
 | **复杂度** | 低 | 中 | 中 | 高 |
@@ -1060,7 +1060,7 @@ packages/opencode/src/tool/
 ### 12.2 自定义工具
 
 ```typescript
-// .opencode/tools/database.ts
+// ~/.config/opencode/tools/database.ts
 import { tool } from "@opencode-ai/plugin"
 export default tool({
   description: "Query the project database",
@@ -1174,7 +1174,7 @@ packages/opencode/src/plugin/
 1. 全局配置 (`~/.config/opencode/opencode.json`)
 2. 项目配置 (`opencode.json`)
 3. 全局插件目录 (`~/.config/opencode/plugins/`)
-4. 项目插件目录 (`.opencode/plugins/`)
+4. 项目插件目录 (`~/.config/opencode/plugins/`)
 
 ### 14.2 插件 Hooks
 
@@ -1723,13 +1723,13 @@ bun run build
 opencode agent create
 
 # 或手动创建 Markdown 文件
-# .opencode/agents/review.md
+# ~/.config/opencode/agents/review.md
 ```
 
 ### 25.3 创建自定义工具
 
 ```typescript
-// .opencode/tools/my-tool.ts
+// ~/.config/opencode/tools/my-tool.ts
 import { tool } from "@opencode-ai/plugin"
 export default tool({
   description: "My custom tool",
@@ -1743,7 +1743,7 @@ export default tool({
 ### 25.4 创建插件
 
 ```typescript
-// .opencode/plugins/my-plugin.ts
+// ~/.config/opencode/plugins/my-plugin.ts
 import type { Plugin } from "@opencode-ai/plugin"
 export const MyPlugin: Plugin = async ({ project, client }) => {
   return {
@@ -1817,9 +1817,9 @@ for await (const event of events.stream) {
 └── tools/                 # 全局工具
 ```
 
-**项目配置** (`.opencode/`):
+**项目配置** (`~/.config/opencode/`):
 ```
-.opencode/
+~/.config/opencode/
 ├── agents/                # 项目级代理
 ├── commands/              # 项目级命令
 ├── plugins/               # 项目级插件

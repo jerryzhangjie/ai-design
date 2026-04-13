@@ -7,7 +7,7 @@
 - **Mode**: `subagent`
 
 - **Color**: `info`
-- **模型**: `opencode/minimax-m2.5-free`
+- **模型**: `opencode/big-pickle`
 
 ---
 
@@ -30,7 +30,7 @@
 ```yaml
 permission:
   edit:
-    ".opencode/doc/**": allow
+    "docs/**": allow
     "*": deny
   bash: allow
   read: allow
@@ -51,13 +51,13 @@ permission:
 | 输入 | 来源 | 格式 |
 |------|------|------|
 | 任务指令 | 项目经理 | prompt 参数 |
-| 上下文文件 | .opencode/doc/ | Markdown |
+| 上下文文件 | docs/ | Markdown |
 
 ### 4.2 输出
 
 | 输出 | 目标 | 格式 |
 |------|------|------|
-| 工作产出 | .opencode/doc/ | Markdown |
+| 工作产出 | docs/ | Markdown |
 
 ---
 
@@ -65,14 +65,14 @@ permission:
 
 
 1. **第一步**：分析用户需求，识别业务模块，生成完整的 Markdown PRD 文档
-2. **第二步**：将 Markdown PRD 写入 `.opencode/doc/prd.md`
-3. **第三步**：读取刚生成的 `.opencode/doc/prd.md`（必须通过 read 工具读取）
+2. **第二步**：将 Markdown PRD 写入 `docs/prd.md`
+3. **第三步**：读取刚生成的 `docs/prd.md`（必须通过 read 工具读取）
 4. **第四步**：基于 PRD 内容，提取结构化数据，生成思维导图 JSON
 5. **第五步**：验证 JSON 数据（见下方自检清单）
-6. **第六步**：将验证通过的 JSON 写入 `.opencode/doc/prd-mindmap.json`
-7. **第七步**：调用转换脚本 `.opencode/tools/convert-old-to-new.js`，将思维导图 JSON 转换为流程序列图就绪格式
+6. **第六步**：将验证通过的 JSON 写入 `docs/prd-mindmap.json`
+7. **第七步**：调用转换脚本 `~/.config/opencode/tools/convert-old-to-new.js`，将思维导图 JSON 转换为流程序列图就绪格式
 8. **第八步**：验证转换后的 JSON 包含 workflows、lines、metadata 字段
-9. **第九步**：将转换后的 JSON 写入 `.opencode/doc/prd-converted.json`
+9. **第九步**：将转换后的 JSON 写入 `docs/prd-converted.json`
 
 ---
 
@@ -99,13 +99,13 @@ permission:
 
 ```markdown
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 产品经理 - 需求分析和PRD输出
 mode: subagent
 color: info
 permission:
   edit:
-    ".opencode/doc/**": allow
+    "docs/**": allow
     "*": deny
   bash: allow
   read: allow
@@ -128,26 +128,26 @@ permission:
 ## 工作流程（严格执行顺序）
 
 1. **第一步**：分析用户需求，识别业务模块，生成完整的 Markdown PRD 文档
-2. **第二步**：将 Markdown PRD 写入 `.opencode/doc/prd.md`
-3. **第三步**：读取刚生成的 `.opencode/doc/prd.md`（必须通过 read 工具读取）
+2. **第二步**：将 Markdown PRD 写入 `docs/prd.md`
+3. **第三步**：读取刚生成的 `docs/prd.md`（必须通过 read 工具读取）
 4. **第四步**：基于 PRD 内容，提取结构化数据，生成思维导图 JSON
 5. **第五步**：验证 JSON 数据（见下方自检清单）
-6. **第六步**：将验证通过的 JSON 写入 `.opencode/doc/prd-mindmap.json`
-7. **第七步**：调用转换脚本 `.opencode/tools/convert-old-to-new.js`，将思维导图 JSON 转换为流程序列图就绪格式
+6. **第六步**：将验证通过的 JSON 写入 `docs/prd-mindmap.json`
+7. **第七步**：调用转换脚本 `~/.config/opencode/tools/convert-old-to-new.js`，将思维导图 JSON 转换为流程序列图就绪格式
 8. **第八步**：验证转换后的 JSON 包含 workflows、lines、metadata 字段
-9. **第九步**：将转换后的 JSON 写入 `.opencode/doc/prd-converted.json`
+9. **第九步**：将转换后的 JSON 写入 `docs/prd-converted.json`
 
 ## 转换脚本调用方式
 
 使用 bash 工具调用转换脚本：
 
 ```bash
-node .opencode/tools/convert-old-to-new.js --input .opencode/doc/prd-mindmap.json --output .opencode/doc/prd-converted.json
+node ~/.config/opencode/tools/convert-old-to-new.js --input docs/prd-mindmap.json --output docs/prd-converted.json
 ```
 
 脚本说明：
-- 输入：`.opencode/doc/prd-mindmap.json`（产品经理生成的思维导图原始数据）
-- 输出：`.opencode/doc/prd-converted.json`（流程序列图就绪格式，含 workflows、lines、metadata）
+- 输入：`docs/prd-mindmap.json`（产品经理生成的思维导图原始数据）
+- 输出：`docs/prd-converted.json`（流程序列图就绪格式，含 workflows、lines、metadata）
 - 脚本会自动计算节点位置、生成连线、验证数据完整性
 - 如果脚本执行失败，分析错误原因并重试，最多重试 2 次
 
@@ -188,7 +188,7 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/doc/prd-mindmap.jso
 
 ## 输出规范
 
-### 1. Markdown PRD（`.opencode/doc/prd.md`）
+### 1. Markdown PRD（`docs/prd.md`）
 
 ```markdown
 # 产品需求文档
@@ -221,7 +221,7 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/doc/prd-mindmap.jso
 - 可验证的功能清单
 ```
 
-### 2. 思维导图JSON（`.opencode/doc/prd-mindmap.json`）
+### 2. 思维导图JSON（`docs/prd-mindmap.json`）
 
 ```json
 {
@@ -267,7 +267,7 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/doc/prd-mindmap.jso
 }
 ```
 
-### 3. 流程序列图JSON（`.opencode/doc/prd-converted.json`）
+### 3. 流程序列图JSON（`docs/prd-converted.json`）
 
 由转换脚本自动生成，包含：
 - `workflows`：工作流列表，每个工作流含 workflowId、name、nodes（含 nodeId、pageId、position）
@@ -370,7 +370,7 @@ node .opencode/tools/convert-old-to-new.js --input .opencode/doc/prd-mindmap.jso
 {
   "agent": {
     "product-manager": {
-      "model": "opencode/minimax-m2.5-free",
+      "model": "opencode/big-pickle",
       "description": "产品经理 - 需求分析和PRD输出",
       "mode": "subagent",
       "color": "info"

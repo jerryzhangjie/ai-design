@@ -1,14 +1,14 @@
 ---
 description: 定期更新 OpenCode 深度解析文档（爬取官网+源码+整合输出）
 agent: build
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 ---
 
 执行 OpenCode 深度解析文档的定期更新任务。
 
 ## 任务目标
 
-更新 `.opencode/agent-architecture-design/OpenCode深度解析文档.md` 文件，确保内容基于最新的官方文档和源码。
+更新 `~/.config/opencode/agent-architecture-design/OpenCode深度解析文档.md` 文件，确保内容基于最新的官方文档和源码。
 
 ## 执行步骤
 
@@ -73,7 +73,7 @@ curl -s "https://api.github.com/repos/anomalyco/opencode/git/trees/dev?recursive
 
 ### 第三阶段：对比分析并更新文档
 
-1. 读取现有文档 `.opencode/agent-architecture-design/OpenCode深度解析文档.md`
+1. 读取现有文档 `~/.config/opencode/agent-architecture-design/OpenCode深度解析文档.md`
 2. 对比官网最新内容和源码结构
 3. 识别以下变更类型：
    - **新增内容**：新功能、新配置项、新提供商、新工具等

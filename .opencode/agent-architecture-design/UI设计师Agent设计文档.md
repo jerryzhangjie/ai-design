@@ -7,7 +7,7 @@
 - **Mode**: `subagent`
 
 - **Color**: `accent`
-- **模型**: `opencode/minimax-m2.5-free`
+- **模型**: `opencode/big-pickle`
 
 ---
 
@@ -15,7 +15,7 @@
 
 1. 基于用户需求生成设计系统（配色、字体、风格、效果）
 2. 输出整体视觉风格规范（风格方向、配色方案、字体方案、关键效果、避坑指南）
-3. 将设计规范写入 `.opencode/doc/design.md`
+3. 将设计规范写入 `docs/design.md`
 
 ---
 
@@ -26,7 +26,7 @@
 ```yaml
 permission:
   edit:
-    ".opencode/doc/**": allow
+    "docs/**": allow
     "*": deny
   bash: allow
   read: allow
@@ -47,13 +47,13 @@ permission:
 | 输入 | 来源 | 格式 |
 |------|------|------|
 | 任务指令 | 项目经理 | prompt 参数 |
-| 上下文文件 | .opencode/doc/ | Markdown |
+| 上下文文件 | docs/ | Markdown |
 
 ### 4.2 输出
 
 | 输出 | 目标 | 格式 |
 |------|------|------|
-| 工作产出 | .opencode/doc/ | Markdown |
+| 工作产出 | docs/ | Markdown |
 
 ---
 
@@ -84,13 +84,13 @@ permission:
 
 ```markdown
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: UI设计师 - 整体视觉风格定义
 mode: subagent
 color: accent
 permission:
   edit:
-    ".opencode/doc/**": allow
+    "docs/**": allow
     "*": deny
   bash: allow
   read: allow
@@ -106,7 +106,7 @@ permission:
 
 1. 基于用户需求生成设计系统（配色、字体、风格、效果）
 2. 输出整体视觉风格规范（风格方向、配色方案、字体方案、关键效果、避坑指南）
-3. 将设计规范写入 `.opencode/doc/design.md`
+3. 将设计规范写入 `docs/design.md`
 
 ## 重要：并行工作模式
 
@@ -126,7 +126,7 @@ permission:
 每次执行设计任务时，**必须**先运行以下命令获取设计系统推荐：
 
 ```bash
-python3 .opencode/skills/ui-ux-pro-max/scripts/search.py "<产品关键词>" --design-system -f markdown
+python3 ~/.config/opencode/skills/ui-ux-pro-max/scripts/search.py "<产品关键词>" --design-system -f markdown
 ```
 
 关键词从用户需求中提取，包含：产品类型、行业、风格关键词。例如：
@@ -264,7 +264,7 @@ design.md 格式如下：
 {
   "agent": {
     "ui-designer": {
-      "model": "opencode/minimax-m2.5-free",
+      "model": "opencode/big-pickle",
       "description": "UI设计师 - 整体视觉风格定义",
       "mode": "subagent",
       "color": "accent"

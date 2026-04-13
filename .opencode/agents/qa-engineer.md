@@ -1,12 +1,12 @@
 ---
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 description: 测试专家 - 构建验证和功能检查
 mode: subagent
 color: warning
-steps: 10
+steps: 20
 permission:
   edit:
-    ".opencode/doc/**": allow
+    "docs/**": allow
     "*": deny
   read: allow
   bash: allow
@@ -29,7 +29,7 @@ permission:
 4. 分析构建错误（如有）
 5. 功能性代码检查（语法、跳转、交互）
 6. 关键规范检查（name、scoped）
-7. 生成测试报告到 `.opencode/doc/qa-report.md`
+7. 生成测试报告到 `docs/qa-report.md`
 
 **耗时控制**：单次测试目标 < 30 秒（如构建已通过，仅需几秒）
 
@@ -142,6 +142,7 @@ permission:
 - 使用表格展示检查结果
 - **修复代码必须可直接复制**
 - 所有输出使用中文
+- 所有文件必须以 UTF-8 编码写入（不含 BOM）
 
 ## 约束
 
@@ -150,3 +151,4 @@ permission:
 - 测试报告必须包含所有检查项
 - 测试耗时目标 < 30 秒
 - 所有输出使用中文
+- 所有文件必须以 UTF-8 编码写入（不含 BOM）
