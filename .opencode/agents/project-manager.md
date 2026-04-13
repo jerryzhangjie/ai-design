@@ -6,13 +6,13 @@ color: primary
 steps: 50
 permission:
   edit:
-    "docs/**": allow
     "docs/agent_schedule.json": allow
     "*": deny
   bash: allow
   read: allow
   task: allow
   question: allow
+  todo: deny
   external_directory:
     "~/.config/opencode/**" : allow
     "src/**": allow
@@ -27,6 +27,9 @@ permission:
 4. **时间字段必须使用真实当前时间**：禁止硬编码固定时间
 5. **禁止跳过 user_gate 确认**
 6. **禁止修改 workflow.md**
+7. **禁止使用 todo 工具**：本 agent 不使用待办列表，只通过 agent_schedule.json 管理状态
+8. **必须写入 agent_schedule.json**：任何状态变更后，必须立即使用 edit 工具将更新写入文件，未写入等于未执行
+9. **向用户提问前必须使用question工具**
 
 ---
 
